@@ -1,0 +1,1 @@
+This is the Sudoku project developed by Ariel, Claudia and Pablo in Python.

@@ -1,0 +1,1 @@
+<config>    <inputType>CSV</inputType>    <outputType>Console</outputType>    <defaultAlgorithm>Peter Norvig</defaultAlgorithm>    <difficultyLevel>Medium</difficultyLevel></config>

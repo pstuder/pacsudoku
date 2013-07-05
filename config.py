@@ -30,13 +30,3 @@ class Configfile():
             else:
                 status=False
         return status
-    
-    def _create_XML_file(self,inputtype,outputtype,defaultAlgorithm,difficultyLevel):
-        newfile=open("config.xml",'w')
-        newfile.write("<config>")
-        newfile.write("    <inputType>"+ inputtype+"</inputType>")
-        newfile.write("    <outputType>"+ outputtype+"</outputType>")
-        newfile.write("    <defaultAlgorithm>"+ defaultAlgorithm+"</defaultAlgorithm>")
-        newfile.write("    <difficultyLevel>"+ difficultyLevel+"</difficultyLevel>")
-        newfile.write("</config>")
-        newfile.close()        

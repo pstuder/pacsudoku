@@ -64,13 +64,15 @@ class FileHandlerTXT(FileHandler):
 			matrix.append(rowint)
 		return matrix
 	
-
 class FileHandlerXML(FileHandler):
 	def __init__(self, file, mode='r'):
 		FileHandler.__init__(self, file, mode)
-		self.xmldoc = minidom.parse(self.file)
+		if 'r' in self.file.mode:
+			self.xmldoc = minidom.parse(self.file)
 	
 	def parseconfig(self):
+		if 'w' in self.file.mode:
+			raise IOError("File not open for reading")
 		inputType = str(self.xmldoc.\
 			getElementsByTagName('inputType')[0].childNodes[0].nodeValue)
 		outputType = str(self.xmldoc.\
@@ -81,8 +83,18 @@ class FileHandlerXML(FileHandler):
 			getElementsByTagName('difficultyLevel')[0].childNodes[0].nodeValue)
 		config = Configfile(inputType, outputType,\
 			defaultAlgorithm, difficultyLevel)
-		
 		return config
+
+	def create_config_file(self, config):
+		if 'r' in self.file.mode:
+			raise IOError("File not open for writing")
+		self.file.write("<config>")
+		self.file.write("    <inputType>"+ config.inputType+"</inputType>")
+		self.file.write("    <outputType>"+ config.outputType+"</outputType>")
+		self.file.write("    <defaultAlgorithm>"+ config.defaultAlgorithm+"</defaultAlgorithm>")
+		self.file.write("    <difficultyLevel>"+ config.difficultyLevel+"</difficultyLevel>")
+		self.file.write("</config>")
+		self.file.close()  
 
 class FileHandlerCSV(FileHandler):
 	def import_file(self):

@@ -49,19 +49,44 @@ class TestFileHandlerTXT(unittest.TestCase):
 	def test_file_imported_will_create_a_list_with_9_elements(self):
 		listlenght = len(self.file_import.import_file())
 		self.assertEqual(9, listlenght)
-		
+
 class TestFileHandlerXML(unittest.TestCase):
 	def setUp(self):
+		self.expected_tuple = ("CSV", "Console", "Peter Norvig", "Medium")
 		self.expected_config = Configfile()
+		self.custom_config = Configfile(*self.expected_tuple)
+		self.file_expected = "config_expected.xml"
+		self.file_actual = "config_actual.xml"
+		with open(self.file_expected) as rawfile:
+			self.expected_xml_content = rawfile.readlines()
+
+ 	def test_parse_config_in_write_mode(self):
+ 		xmlhandler = FileHandlerXML(self.file_actual, 'w')
+ 		self.assertRaises(IOError,	xmlhandler.parseconfig)
 	
 	def test_config_instance_is_created(self):
-		xmlhandler = FileHandlerXML("config_expected.xml")
+		xmlhandler = FileHandlerXML(self.file_expected)
 		actual_config = xmlhandler.parseconfig()
-		self.assertEqual(('CSV', 'Console', 'Peter Norvig', 'Medium'),\
+		self.assertEqual(self.expected_tuple,\
 			(actual_config.inputType, actual_config.outputType,\
 			actual_config.defaultAlgorithm, actual_config.difficultyLevel))
 		
-		
+	def test_config_file_is_created(self):
+		xmlhandler = FileHandlerXML(self.file_actual,'w')
+		xmlhandler.create_config_file(self.custom_config)
+		with open(self.file_actual) as rawfile:
+			actual_xml_content = rawfile.readlines()
+		self.assertEqual(actual_xml_content, self.expected_xml_content)
+
+ 	def test_save_config_and_close(self):
+ 		xmlhandler = FileHandlerXML(self.file_actual, 'w')
+ 		xmlhandler.create_config_file(self.custom_config)
+ 		self.assertTrue(xmlhandler.file.closed)
+ 		
+ 	def test_save_config_in_read_mode(self):
+ 		xmlhandler = FileHandlerXML(self.file_actual)
+ 		self.assertRaises(IOError,\
+			xmlhandler.create_config_file, self.custom_config)
 
 class TestFileHandler(unittest.TestCase):
 	def setUp(self):

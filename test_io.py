@@ -1,5 +1,6 @@
 import unittest
 import csv
+import os
 from validmatrix import MatrixHandler
 from io import FileHandler, FileHandlerXML, FileHandlerTXT,FileHandlerCSV
 from config import Configfile
@@ -16,32 +17,74 @@ class TestFileHandlerTXT(unittest.TestCase):
  						[5, 7, 3, 2, 9, 1, 6, 8, 4],\
  						[1, 6, 4, 8, 7, 5, 2, 9, 3]]
  		
- 		with open("export_expected.txt") as file:
- 			self.txt_content_expected = file.readlines()
- 		
+ 		self.txt_content_expected = [  "417369825\n",\
+ 										"632158947\n",\
+ 										"958724316\n",\
+ 										"825437169\n",\
+ 										"791586432\n",\
+ 										"346912758\n",\
+ 										"289643571\n",\
+ 										"573291684\n",\
+ 										"164875293\n"  ]
+
  		self.file_actual = "export_actual.txt"
- 		self.file_import = FileHandlerTXT("sudoku_import.txt",'r')
+ 		self.file_expected = "export_expected.txt"
+
+		with open(self.file_expected, 'w') as rawfile:
+			for row in self.txt_content_expected:
+				rawfile.write(row)
+
+ 		self.content_sudoku_import = [ "400000805\n",\
+ 										"030000000\n",\
+ 										"000700000\n",\
+ 										"020000060\n",\
+ 										"000080400\n",\
+ 										"000010000\n",\
+ 										"000603070\n",\
+ 										"500200000\n",\
+ 										"104000000\n" ]
+
+ 		self.file_sudoku_import = "sudoku_import.txt"
+ 		
+		with open(self.file_sudoku_import, 'w') as rawfile:
+			for row in self.txt_content_expected:
+				rawfile.write(row)
+		
+ 		self.file_import = FileHandlerTXT(self.file_sudoku_import,'r')
  	
+ 	def tearDown(self):
+ 		self.file_import.file.close()
+ 		try:
+ 			os.remove(self.file_expected)
+		except:
+			pass
+ 		try:
+			os.remove(self.file_actual)
+		except:
+			pass
+ 		try:
+			os.remove(self.file_sudoku_import)
+		except:
+			pass
+	
  	def test_export_matrix_to_txt(self):
  		txthandler = FileHandlerTXT(self.file_actual,'w')
  		txthandler.export_file(self.matrix)
  		with open(self.file_actual) as file:
  			txt_content_actual = file.readlines()
- 		
  		self.assertEqual(self.txt_content_expected,txt_content_actual)
- 
+	
  	def test_export_txt_and_close(self):
  		txthandler = FileHandlerTXT(self.file_actual, 'w')
  		txthandler.export_file(self.matrix)
  		self.assertTrue(txthandler.file.closed)
- 		
+	
  	def test_exporting_to_txt_file_in_read_mode(self):
- 		txthandler = FileHandlerTXT(self.file_actual)
+ 		txthandler = FileHandlerTXT(self.file_expected)
  		self.assertRaises(IOError, txthandler.export_file, self.matrix)
- 		
- 	#-------------------------------------------
  	
-		
+	# -----------------------------------------------------------------
+
 	def test_file_to_import_is_not_empty(self):
 		notemptyfile = self.file_import.not_empty()
 		self.assertEqual(True, notemptyfile)
@@ -52,14 +95,33 @@ class TestFileHandlerTXT(unittest.TestCase):
 
 class TestFileHandlerXML(unittest.TestCase):
 	def setUp(self):
+		self.expected_xml_content = ["<config>" +\
+					"    <inputType>CSV</inputType>" +\
+					"    <outputType>Console</outputType>" +\
+					"    <defaultAlgorithm>Peter Norvig</defaultAlgorithm>" +\
+					"    <difficultyLevel>Medium</difficultyLevel>" +\
+					"</config>"]
+		
 		self.expected_tuple = ("CSV", "Console", "Peter Norvig", "Medium")
 		self.expected_config = Configfile()
 		self.custom_config = Configfile(*self.expected_tuple)
+		
 		self.file_expected = "config_expected.xml"
 		self.file_actual = "config_actual.xml"
-		with open(self.file_expected) as rawfile:
-			self.expected_xml_content = rawfile.readlines()
+		
+		with open(self.file_expected, 'w') as rawfile:
+			rawfile.write(self.expected_xml_content[0])
 
+ 	def tearDown(self):
+ 		try:
+ 			os.remove(self.file_expected)
+		except:
+			pass
+ 		try:
+			os.remove(self.file_actual)
+		except:
+			pass
+	
  	def test_parse_config_in_write_mode(self):
  		xmlhandler = FileHandlerXML(self.file_actual, 'w')
  		self.assertRaises(IOError,	xmlhandler.parseconfig)
@@ -84,19 +146,29 @@ class TestFileHandlerXML(unittest.TestCase):
  		self.assertTrue(xmlhandler.file.closed)
  		
  	def test_save_config_in_read_mode(self):
- 		xmlhandler = FileHandlerXML(self.file_actual)
+ 		xmlhandler = FileHandlerXML(self.file_expected)
  		self.assertRaises(IOError,\
 			xmlhandler.create_config_file, self.custom_config)
 
 class TestFileHandler(unittest.TestCase):
 	def setUp(self):
 		self.file_valid = "valid_file.txt"
-		with open(self.file_valid, 'w') as file:
-			file.write('')
-		
 		self.file_invalid = "invalid_file.txt"
 		self.file_invalid_expected = "invalid_file_new.txt"
 		self.expected_mode = "r"
+		
+		with open(self.file_valid, 'w') as file:
+			file.write('')
+ 	
+ 	def tearDown(self):
+ 		try:
+ 			os.remove(self.file_valid)
+		except:
+			pass
+ 		try:
+			os.remove(self.file_invalid_expected)
+		except:
+			pass
 	
 	def test_open_valid_file(self):
 		actual_handler = FileHandler(self.file_valid)
@@ -125,14 +197,25 @@ class TestFileHandlerCSV(unittest.TestCase):
 			file1.write('0,0,0,6,0,3,0,7,0\n')
 			file1.write('5,0,0,2,0,0,0,0,0\n')
 			file1.write('1,0,4,0,0,0,0,0,0\n')
-		file1.close()
-		#file_handler_internal=FileHandler("valid_file.csv","r")
+		
 		self.input_file=FileHandlerCSV("valid_file.csv","r")
 		self.file_invalid = "invalid_file.csv"
 		self.invalid_input_file=FileHandlerCSV("invalid_file.csv","r")
 		
 		self.file_invalid_expected = "invalid_file_new.csv"
 		self.expected_mode = "r"
+ 	
+ 	def tearDown(self):
+ 		self.input_file.file.close()
+ 		self.invalid_input_file.file.close()
+ 		try:
+ 			os.remove(self.file_valid)
+		except:
+			pass
+ 		try:
+			os.remove(self.file_invalid_expected)
+		except:
+			pass
 	
 	def test_CSV_file_retirns_the_content_in_a_matrix(self):
 		expected_result=[[4,0,0,0,0,0,8,0,5]\
@@ -154,8 +237,6 @@ class TestFileHandlerCSV(unittest.TestCase):
 		inexistent_input_file=FileHandlerCSV(self.file_invalid_expected,"r")
 		expected_result=False
 		self.assertEqual(expected_result, inexistent_input_file.import_file())
-		
-
 
 if __name__ == "__main__":
 	unittest.main()

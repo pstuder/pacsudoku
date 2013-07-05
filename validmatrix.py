@@ -46,25 +46,32 @@ class MatrixHandler:
             return flag
         else:
             return False
-    def repeatednumberscolumns(self):
-       flag = True
-       for i in range(0,9):
-            listcolumn = self.first_matrix[0:9][i]
-            for j in range(1,9):
-                if listcolumn.count(j)>1:
-                    flag = False
-                    break
-       return flag
+
+     def repeatednumberscolumns(self):
+        if self.lenght_matrix() == True:
+            flag = True
+            for i in range(0,9):
+                listcolumn = self.first_matrix[0:9][i]
+                for j in range(1,9):
+                    if listcolumn.count(j)>1:
+                        flag = False
+                        break
+            return flag
+        else:
+            return False
         
     def repeatednumbersline(self):
-        flag = True
-        for i in range(0,9):
-            listline = self.first_matrix[i][0:9]
-            for j in range(1,9):
-                if listline.count(j)>1:
-                    flag = False
-                    break
-        return flag
+        if self.lenght_matrix() == True:
+            flag = True
+            for i in range(0,9):
+                listline = self.first_matrix[i][0:9]
+                for j in range(1,9):
+                    if listline.count(j)>1:
+                        flag = False
+                        break
+            return flag
+        else:
+            return False
     
     def minimatrixtolist (self,mini_matrix):
         listmatrix = []

@@ -11,12 +11,9 @@ class FileHandler:
 		try:
 			self.file = open(self.file_name, mode)
 		except:
-			print "\nUnable to open file in '%s' mode.\n" % mode
 			self.file_name = file.split('.')[0] + '_new.' + file.split('.')[1]
-			
-			print "Creating a new file %s and open in 'w' mode."\
-				% self.file_name
 			self.file = open(self.file_name, 'w')
+			self.reopen(mode)
 	
 	def reopen(self, mode):
 		if not self.file.closed:
@@ -27,7 +24,7 @@ class FileHandlerTXT(FileHandler):
 	def __init__(self, file, mode='r'):
 		FileHandler.__init__(self, file, mode)
 		
-	def export(self, matrix):
+	def export_file(self, matrix):
 		if 'r' in self.file.mode:
 			raise IOError("File not open for writing")
 		else:
@@ -48,7 +45,7 @@ class FileHandlerTXT(FileHandler):
 			return False
 		self.file.close()
 		
-	def importmatrix(self):
+	def import_file(self):
 		#file_to_import = open(self.file, 'r')
 		file_imported = self.file.readlines()
 		linematrix = []
@@ -88,16 +85,24 @@ class FileHandlerXML(FileHandler):
 		return config
 
 class FileHandlerCSV(FileHandler):
-	def __init__(self, file, mode='r'):
-		FileHandler.__init__(self, file, mode)
-	
-	def importfile(self):
+	def import_file(self):
 		selfmatrix=[]
+		selfmatrixaux=[]
 		with self.file as f:
 			reader = csv.reader(f)
-			for row in reader:
-				selfmatrix.append(row)
-		return selfmatrix
-	
+			if reader!="":
+				for row in reader:
+					for a in range(len(row)):
+						selfmatrixaux.append(int(row[a]))
+					selfmatrix.append(selfmatrixaux)
+					selfmatrixaux=[]
+		mat=MatrixHandler(selfmatrix)
+		if mat.validate()==True:
+			return selfmatrix
+		else:
+			return False
 
+
+		
+	
 	

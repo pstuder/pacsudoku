@@ -24,7 +24,7 @@ class TestFileHandlerTXT(unittest.TestCase):
  	
  	def test_export_matrix_to_txt(self):
  		txthandler = FileHandlerTXT(self.file_actual,'w')
- 		txthandler.export(self.matrix)
+ 		txthandler.export_file(self.matrix)
  		with open(self.file_actual) as file:
  			txt_content_actual = file.readlines()
  		
@@ -32,12 +32,12 @@ class TestFileHandlerTXT(unittest.TestCase):
  
  	def test_export_txt_and_close(self):
  		txthandler = FileHandlerTXT(self.file_actual, 'w')
- 		txthandler.export(self.matrix)
+ 		txthandler.export_file(self.matrix)
  		self.assertTrue(txthandler.file.closed)
  		
  	def test_exporting_to_txt_file_in_read_mode(self):
  		txthandler = FileHandlerTXT(self.file_actual)
- 		self.assertRaises(IOError, txthandler.export, self.matrix)
+ 		self.assertRaises(IOError, txthandler.export_file, self.matrix)
  		
  	#-------------------------------------------
  	
@@ -47,7 +47,7 @@ class TestFileHandlerTXT(unittest.TestCase):
 		self.assertEqual(True, notemptyfile)
 		
 	def test_file_imported_will_create_a_list_with_9_elements(self):
-		listlenght = len(self.file_import.importmatrix())
+		listlenght = len(self.file_import.import_file())
 		self.assertEqual(9, listlenght)
 		
 class TestFileHandlerXML(unittest.TestCase):
@@ -104,12 +104,33 @@ class TestFileHandlerCSV(unittest.TestCase):
 		#file_handler_internal=FileHandler("valid_file.csv","r")
 		self.input_file=FileHandlerCSV("valid_file.csv","r")
 		self.file_invalid = "invalid_file.csv"
+		self.invalid_input_file=FileHandlerCSV("invalid_file.csv","r")
+		
 		self.file_invalid_expected = "invalid_file_new.csv"
 		self.expected_mode = "r"
 	
 	def test_CSV_file_retirns_the_content_in_a_matrix(self):
-		expected_result=[['4','0','0','0','0','0','8','0','5'],['0','3','0','0','0','0','0','0','0'],['0','0','0','7','0','0','0','0','0'],['0','2','0','0','0','0','0','6','0'],['0','0','0','0','8','0','4','0','0'],['0','0','0','0','1','0','0','0','0'],['0','0','0','6','0','3','0','7','0'],['5','0','0','2','0','0','0','0','0'],['1','0','4','0','0','0','0','0','0']]
-		self.assertEqual(expected_result, self.input_file.importfile())
+		expected_result=[[4,0,0,0,0,0,8,0,5]\
+						,[0,3,0,0,0,0,0,0,0]\
+						,[0,0,0,7,0,0,0,0,0]\
+						,[0,2,0,0,0,0,0,6,0]\
+						,[0,0,0,0,8,0,4,0,0]\
+						,[0,0,0,0,1,0,0,0,0]\
+						,[0,0,0,6,0,3,0,7,0]\
+						,[5,0,0,2,0,0,0,0,0]\
+						,[1,0,4,0,0,0,0,0,0]]
+		self.assertEqual(expected_result, self.input_file.import_file())
+		
+	def test_CSV_file_returns_false_if_the_matrix_has_no_valid_format(self):
+		expected_result=False
+		self.assertEqual(expected_result, self.invalid_input_file.import_file())
+
+	def test_CSV_file_create_a_file_if_no_exist(self):
+		inexistent_input_file=FileHandlerCSV(self.file_invalid_expected,"r")
+		expected_result=False
+		self.assertEqual(expected_result, inexistent_input_file.import_file())
+		
+
 
 if __name__ == "__main__":
 	unittest.main()

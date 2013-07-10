@@ -1,29 +1,35 @@
-
 import csv
 from validmatrix import MatrixHandler
 from config import Configfile
 from xml.dom import minidom
+from os import path
 
 class FileHandler:
-	
 	def __init__(self, file, mode='r'):
-		self.file_name = file
-		try:
-			self.file = open(self.file_name, mode)
-		except:
-			self.file_name = file.split('.')[0] + '_new.' + file.split('.')[1]
-			self.file = open(self.file_name, 'w')
-			self.reopen(mode)
+		dir_name = path.dirname(file)
+		if not dir_name:
+			dir_name = "."
+		if path.exists(dir_name):
+			self.file_dir = path.abspath(dir_name)
+			self.file_name = path.basename(file)
+			try:
+				self.file = open(file, mode)
+			except:
+				splitted_file_name = self.file_name.rsplit('.', 1)
+				self.file_name = splitted_file_name[0] + '_new'
+				if len(splitted_file_name) > 1:
+					self.file_name += '.' + splitted_file_name[1]
+				self.file = open(self.file_dir + '/' + self.file_name, 'w')
+				self.reopen(mode)
+		else:
+			raise IOError("Path not found")
 	
 	def reopen(self, mode):
 		if not self.file.closed:
 			self.file.close()
-		self.file = open(self.file_name, mode)
+		self.file = open(self.file.name, mode)
 
 class FileHandlerTXT(FileHandler):
-	def __init__(self, file, mode='r'):
-		FileHandler.__init__(self, file, mode)
-		
 	def export_file(self, matrix):
 		if 'r' in self.file.mode:
 			raise IOError("File not open for writing")
@@ -59,8 +65,8 @@ class FileHandlerTXT(FileHandler):
 			for j in range(len(row)):
 				if row[j] in ['a','b','c','d','e','f','g','h','a','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','S','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']:
 					pass
-			else:
-				rowint.append(int(row[j]))
+				else:
+					rowint.append(int(row[j]))
 			matrix.append(rowint)
 		return matrix
 	
@@ -70,7 +76,7 @@ class FileHandlerXML(FileHandler):
 		if 'r' in self.file.mode:
 			self.xmldoc = minidom.parse(self.file)
 	
-	def parseconfig(self):
+	def read_config_file(self):
 		if 'w' in self.file.mode:
 			raise IOError("File not open for reading")
 		inputType = str(self.xmldoc.\
@@ -88,13 +94,17 @@ class FileHandlerXML(FileHandler):
 	def create_config_file(self, config):
 		if 'r' in self.file.mode:
 			raise IOError("File not open for writing")
-		self.file.write("<config>")
-		self.file.write("    <inputType>"+ config.inputType+"</inputType>")
-		self.file.write("    <outputType>"+ config.outputType+"</outputType>")
-		self.file.write("    <defaultAlgorithm>"+ config.defaultAlgorithm+"</defaultAlgorithm>")
-		self.file.write("    <difficultyLevel>"+ config.difficultyLevel+"</difficultyLevel>")
+		self.file.write("<config>\n")
+		self.file.write("    <inputType>" + config.inputType +
+                                "</inputType>\n")
+		self.file.write("    <outputType>" + config.outputType +
+                                "</outputType>\n")
+		self.file.write("    <defaultAlgorithm>" + config.defaultAlgorithm +
+                                "</defaultAlgorithm>\n")
+		self.file.write("    <difficultyLevel>" + config.difficultyLevel +
+                                "</difficultyLevel>\n")
 		self.file.write("</config>")
-		self.file.close()  
+		self.file.close()
 
 class FileHandlerCSV(FileHandler):
 	def import_file(self):
@@ -108,13 +118,5 @@ class FileHandlerCSV(FileHandler):
 						selfmatrixaux.append(int(row[a]))
 					selfmatrix.append(selfmatrixaux)
 					selfmatrixaux=[]
-		mat=MatrixHandler(selfmatrix)
-		if mat.validate()==True:
-			return selfmatrix
-		else:
-			return False
+		return selfmatrix
 
-
-		
-	
-	

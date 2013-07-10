@@ -66,10 +66,6 @@ class Algorithm:
 
 class Norvig(Algorithm):
 	
-	def __init__(self, matrixhandler):
-		Algorithm.__init__(self, matrixhandler)
-		self._input_grid = self._to_grid()
-	
 	def solve(self):
 		"""
 		solve() -> matrixhandler
@@ -79,7 +75,7 @@ class Norvig(Algorithm):
 		Return output matrixhandler with the sudoku solved
 		Return None, if sudoku has no solution.
 		"""
-		grid = self._input_grid
+		grid = self._to_grid()
 		result_grid = self._search(self._construct_possible_values_grid(grid))
 		if not isinstance(result_grid, bool):
 			return self._to_matrix(result_grid)

@@ -29,8 +29,8 @@ class test_configfile(unittest.TestCase):
         self.assertEqual(personal_configfile.outputType,"File")    
 
     def test_load_config_file_with_Default_Algorithm_Peter_Novigs(self):
-        personal_configfile=Configfile("TXT", "Console","Peter Norvig","Low")
-        self.assertEqual(personal_configfile.defaultAlgorithm,"Peter Norvig")         
+        personal_configfile=Configfile("TXT", "Console","Norvig","Low")
+        self.assertEqual(personal_configfile.defaultAlgorithm,"Norvig")         
 
     def test_load_config_file_with_difficultyLevel_Medium(self):
         personal_configfile=Configfile("TXT", "Console","Backtracking","Medium")

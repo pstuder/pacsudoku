@@ -1,6 +1,6 @@
 import unittest
 import csv
-import os
+from os import remove, path
 from validmatrix import MatrixHandler
 from io import FileHandler, FileHandlerXML, FileHandlerTXT,FileHandlerCSV
 from config import Configfile
@@ -47,7 +47,7 @@ class TestFileHandlerTXT(unittest.TestCase):
  		self.file_sudoku_import = "sudoku_import.txt"
  		
 		with open(self.file_sudoku_import, 'w') as rawfile:
-			for row in self.txt_content_expected:
+			for row in self.content_sudoku_import:
 				rawfile.write(row)
 		
  		self.file_import = FileHandlerTXT(self.file_sudoku_import,'r')
@@ -55,15 +55,15 @@ class TestFileHandlerTXT(unittest.TestCase):
  	def tearDown(self):
  		self.file_import.file.close()
  		try:
- 			os.remove(self.file_expected)
+ 			remove(self.file_expected)
 		except:
 			pass
  		try:
-			os.remove(self.file_actual)
+			remove(self.file_actual)
 		except:
 			pass
  		try:
-			os.remove(self.file_sudoku_import)
+			remove(self.file_sudoku_import)
 		except:
 			pass
 	
@@ -92,17 +92,22 @@ class TestFileHandlerTXT(unittest.TestCase):
 	def test_file_imported_will_create_a_list_with_9_elements(self):
 		listlenght = len(self.file_import.import_file())
 		self.assertEqual(9, listlenght)
+		
+	def test_file_import_will_creat_a_9x9_matrix(self):
+		matrix_imported =self.file_import.import_file()
+		matrix_expected = [[4,0,0,0,0,0,8,0,5],[0,3,0,0,0,0,0,0,0],[0,0,0,7,0,0,0,0,0],[0,2,0,0,0,0,0,6,0],[0,0,0,0,8,0,4,0,0],[0,0,0,0,1,0,0,0,0],[0,0,0,6,0,3,0,7,0],[5,0,0,2,0,0,0,0,0],[1,0,4,0,0,0,0,0,0]]
+		self.assertEqual(matrix_imported, matrix_expected)
 
 class TestFileHandlerXML(unittest.TestCase):
 	def setUp(self):
-		self.expected_xml_content = ["<config>" +\
-					"    <inputType>CSV</inputType>" +\
-					"    <outputType>Console</outputType>" +\
-					"    <defaultAlgorithm>Peter Norvig</defaultAlgorithm>" +\
-					"    <difficultyLevel>Medium</difficultyLevel>" +\
-					"</config>"]
+		self.expected_xml_content = ["<config>\n",\
+					"    <inputType>CSV</inputType>\n",\
+					"    <outputType>Console</outputType>\n",\
+					"    <defaultAlgorithm>Norvig</defaultAlgorithm>\n",\
+					"    <difficultyLevel>Medium</difficultyLevel>\n",\
+									"</config>"]
 		
-		self.expected_tuple = ("CSV", "Console", "Peter Norvig", "Medium")
+		self.expected_tuple = ("CSV", "Console", "Norvig", "Medium")
 		self.expected_config = Configfile()
 		self.custom_config = Configfile(*self.expected_tuple)
 		
@@ -110,25 +115,26 @@ class TestFileHandlerXML(unittest.TestCase):
 		self.file_actual = "config_actual.xml"
 		
 		with open(self.file_expected, 'w') as rawfile:
-			rawfile.write(self.expected_xml_content[0])
-
+			for row in self.expected_xml_content:
+				rawfile.write(row)
+	
  	def tearDown(self):
  		try:
- 			os.remove(self.file_expected)
+ 			remove(self.file_expected)
 		except:
 			pass
  		try:
-			os.remove(self.file_actual)
+			remove(self.file_actual)
 		except:
 			pass
 	
  	def test_parse_config_in_write_mode(self):
  		xmlhandler = FileHandlerXML(self.file_actual, 'w')
- 		self.assertRaises(IOError,	xmlhandler.parseconfig)
+ 		self.assertRaises(IOError,	xmlhandler.read_config_file)
 	
 	def test_config_instance_is_created(self):
 		xmlhandler = FileHandlerXML(self.file_expected)
-		actual_config = xmlhandler.parseconfig()
+		actual_config = xmlhandler.read_config_file()
 		self.assertEqual(self.expected_tuple,\
 			(actual_config.inputType, actual_config.outputType,\
 			actual_config.defaultAlgorithm, actual_config.difficultyLevel))
@@ -155,28 +161,42 @@ class TestFileHandler(unittest.TestCase):
 		self.file_valid = "valid_file.txt"
 		self.file_invalid = "invalid_file.txt"
 		self.file_invalid_expected = "invalid_file_new.txt"
+		self.file_in_valid_dir = path.abspath("myfile")
+		self.file_in_invalid_dir = "/non-existent/myfile"
+		self.valid_dir = path.abspath(".")
 		self.expected_mode = "r"
 		
 		with open(self.file_valid, 'w') as file:
 			file.write('')
  	
- 	def tearDown(self):
- 		try:
- 			os.remove(self.file_valid)
+	def tearDown(self):
+		try:
+			remove(self.file_valid)
 		except:
 			pass
- 		try:
-			os.remove(self.file_invalid_expected)
+		try:
+			remove(self.file_invalid_expected)
+		except:
+			pass
+		try:
+			remove(self.file_in_valid_dir)
 		except:
 			pass
 	
 	def test_open_valid_file(self):
 		actual_handler = FileHandler(self.file_valid)
-		self.assertEqual(self.file_valid, actual_handler.file.name)
+		self.assertEqual(self.file_valid, actual_handler.file_name)
 	
 	def test_open_invalid_file(self):
 		actual_handler = FileHandler(self.file_invalid)
-		self.assertEqual(self.file_invalid_expected, actual_handler.file.name)
+		self.assertEqual(self.file_invalid_expected, actual_handler.file_name)
+	
+	def test_open_valid_dir(self):
+		actual_handler = FileHandler(self.file_in_valid_dir)
+		self.assertEqual(self.valid_dir, actual_handler.file_dir)
+	
+	def test_open_invalid_dir(self):
+		self.assertRaises(IOError, FileHandler, self.file_in_invalid_dir)
 	
 	def test_reopening(self):
 		handler = FileHandler(self.file_valid, 'w')
@@ -198,26 +218,16 @@ class TestFileHandlerCSV(unittest.TestCase):
 			file1.write('5,0,0,2,0,0,0,0,0\n')
 			file1.write('1,0,4,0,0,0,0,0,0\n')
 		
-		self.input_file=FileHandlerCSV("valid_file.csv","r")
-		self.file_invalid = "invalid_file.csv"
-		self.invalid_input_file=FileHandlerCSV("invalid_file.csv","r")
-		
-		self.file_invalid_expected = "invalid_file_new.csv"
-		self.expected_mode = "r"
+		self.input_file=FileHandlerCSV(self.file_valid,"r")
  	
  	def tearDown(self):
  		self.input_file.file.close()
- 		self.invalid_input_file.file.close()
  		try:
- 			os.remove(self.file_valid)
-		except:
-			pass
- 		try:
-			os.remove(self.file_invalid_expected)
+ 			remove(self.file_valid)
 		except:
 			pass
 	
-	def test_CSV_file_retirns_the_content_in_a_matrix(self):
+	def test_CSV_file_returns_the_content_in_a_matrix(self):
 		expected_result=[[4,0,0,0,0,0,8,0,5]\
 						,[0,3,0,0,0,0,0,0,0]\
 						,[0,0,0,7,0,0,0,0,0]\
@@ -228,15 +238,6 @@ class TestFileHandlerCSV(unittest.TestCase):
 						,[5,0,0,2,0,0,0,0,0]\
 						,[1,0,4,0,0,0,0,0,0]]
 		self.assertEqual(expected_result, self.input_file.import_file())
-		
-	def test_CSV_file_returns_false_if_the_matrix_has_no_valid_format(self):
-		expected_result=False
-		self.assertEqual(expected_result, self.invalid_input_file.import_file())
-
-	def test_CSV_file_create_a_file_if_no_exist(self):
-		inexistent_input_file=FileHandlerCSV(self.file_invalid_expected,"r")
-		expected_result=False
-		self.assertEqual(expected_result, inexistent_input_file.import_file())
 
 if __name__ == "__main__":
 	unittest.main()

@@ -1,22 +1,28 @@
 import unittest
+from os import remove
+
 from main import Interface
 from io import FileHandlerXML, FileHandlerTXT, FileHandlerCSV
-from os import remove
+
 
 class TestInterface(unittest.TestCase):
 	def setUp(self):
-		self.xml_content1 = ["<config>"+\
+		self.xml_content1 = [
+				"<config>" +
 					"<inputType>CSV</inputType>" +
 					"<outputType>Console</outputType>" +
 					"<defaultAlgorithm>Norvig</defaultAlgorithm>" +
 					"<difficultyLevel>Medium</difficultyLevel>" +
-							"</config>"]
-		self.xml_content2 = ["<config>"+\
+				"</config>"
+		]
+		self.xml_content2 = [
+				"<config>" +
 					"<inputType>TXT</inputType>" +
 					"<outputType>File</outputType>" +
 					"<defaultAlgorithm>Other</defaultAlgorithm>" +
 					"<difficultyLevel>High</difficultyLevel>" +
-							"</config>"]
+				"</config>"
+		]
 
 		self.xml_file1 = "config1.xml"
 		self.xml_file2 = "config2.xml"
@@ -30,9 +36,9 @@ class TestInterface(unittest.TestCase):
 		self.file_handler_xml2 = FileHandlerXML(self.xml_file2)
 
 		self.expected_tuple_from_file = ("CSV", "Console",\
-											"Norvig", "Medium")
+										"Norvig", "Medium")
 		self.expected_tuple_default = ("TXT", "Console",\
-											"Backtracking", "Low")
+										"Backtracking", "Low")
 		
 		self.sudoku_import_csv = "sudoku.csv"
  		self.sudoku_import_txt = "sudoku.txt"
@@ -86,19 +92,26 @@ class TestInterface(unittest.TestCase):
 
 	def test_interface_instance_created_with_config_instance_from_file(self):
 		actual_interface = Interface(self.file_handler_xml1)
-		actual_tuple_from_file = (actual_interface.config.inputType,\
-								actual_interface.config.outputType,\
-								actual_interface.config.defaultAlgorithm,\
-								actual_interface.config.difficultyLevel)
-		self.assertEqual(self.expected_tuple_from_file, actual_tuple_from_file)
+		actual_tuple_from_file = (
+			actual_interface.config.inputType,
+			actual_interface.config.outputType,
+			actual_interface.config.defaultAlgorithm,
+			actual_interface.config.difficultyLevel
+		)
+		self.assertEqual(
+			self.expected_tuple_from_file,
+			actual_tuple_from_file
+		)
 	
-	def test_interface_instance_created_if_ioerror_in_file_handler(self):
+	def test_interface_instance_created_if_io_error_in_file_handler(self):
 		self.file_handler_xml1.reopen('w')
 		actual_interface = Interface(self.file_handler_xml1)
-		actual_tuple_default = (actual_interface.config.inputType,\
-								actual_interface.config.outputType,\
-								actual_interface.config.defaultAlgorithm,\
-								actual_interface.config.difficultyLevel)
+		actual_tuple_default = (
+			actual_interface.config.inputType,
+			actual_interface.config.outputType,
+			actual_interface.config.defaultAlgorithm,
+			actual_interface.config.difficultyLevel
+		)
 		self.assertEqual(self.expected_tuple_default, actual_tuple_default)
 		
 	def test_resetting_input_matrix(self):
@@ -149,43 +162,44 @@ class TestInterface(unittest.TestCase):
 		actual_algorithm = interface.algorithm.__class__.__name__
 		self.assertEqual(expected_algorithm, actual_algorithm)
 
-	def test_set_algorithm_raises_TypeError_if_invalid(self):
+	def test_set_algorithm_raises_type_error_if_invalid(self):
 		interface = Interface(self.file_handler_xml1)
 		interface.config.defaultAlgorithm = "Super Sudoku Algorithm"
 		self.assertRaises(TypeError, interface._set_algorithm)
 
-	def test_update_config_inputType(self):
+	def test_update_config_input_type(self):
 		interface = Interface(self.file_handler_xml1)
-		self.assertTrue(interface.update_config_inputType("TXT"))
+		self.assertTrue(interface.update_config_input_type("TXT"))
 
-	def test_update_config_inputType_if_invalid(self):
+	def test_update_config_input_type_if_invalid(self):
 		interface = Interface(self.file_handler_xml2)
-		self.assertFalse(interface.update_config_inputType("DAT"))
+		self.assertFalse(interface.update_config_input_type("DAT"))
 
-	def test_update_config_outputType(self):
+	def test_update_config_output_type(self):
 		interface = Interface(self.file_handler_xml1)
-		self.assertTrue(interface.update_config_outputType("File"))
+		self.assertTrue(interface.update_config_output_type("File"))
 
-	def test_update_config_outputType_if_invalid(self):
+	def test_update_config_output_type_if_invalid(self):
 		interface = Interface(self.file_handler_xml2)
-		self.assertFalse(interface.update_config_outputType("Network"))
+		self.assertFalse(interface.update_config_output_type("Network"))
 
-	def test_update_config_defaultAlgorithm(self):
+	def test_update_config_default_algorithm(self):
 		interface = Interface(self.file_handler_xml1)
-		self.assertTrue(interface.update_config_defaultAlgorithm("Other"))
+		self.assertTrue(interface.update_config_default_algorithm("Other"))
 
-	def test_update_config_defaultAlgorithm_if_invalid(self):
+	def test_update_config_default_algorithm_if_invalid(self):
 		interface = Interface(self.file_handler_xml2)
-		self.assertFalse(\
-				interface.update_config_defaultAlgorithm("MyAlgorithm"))
+		self.assertFalse(
+			interface.update_config_default_algorithm("MyAlgorithm")
+		)
 
-	def test_update_config_difficultyLevel(self):
+	def test_update_config_difficulty_level(self):
 		interface = Interface(self.file_handler_xml1)
-		self.assertTrue(interface.update_config_difficultyLevel("High"))
+		self.assertTrue(interface.update_config_difficulty_level("High"))
 
-	def test_update_config_difficultyLevel_if_invalid(self):
+	def test_update_config_difficulty_level_if_invalid(self):
 		interface = Interface(self.file_handler_xml2)
-		self.assertFalse(interface.update_config_difficultyLevel("Easy"))
+		self.assertFalse(interface.update_config_difficulty_level("Easy"))
 
 	def test_save_config_to_file_returns_true_if_valid(self):
 		interface = Interface(self.file_handler_xml1)
@@ -194,41 +208,32 @@ class TestInterface(unittest.TestCase):
 
 	def test_save_config_to_file_returns_false_if_invalid(self):
 		interface = Interface(self.file_handler_xml2)
-		self.assertFalse(interface.save_config_to_file(self.file_handler_xml2))
+		self.assertFalse(
+			interface.save_config_to_file(self.file_handler_xml2)
+		)
 
 	def test_load_sudoku_returns_true_for_valid_matrix_in_csv(self):
 		interface = Interface(self.file_handler_xml1)
-		actual_result = interface.load_sudoku_from_file(self.sudoku_import_csv)
-		self.assertTrue(actual_result)
+		self.assertTrue(
+			interface.load_sudoku_from_file(self.sudoku_import_csv)
+		)
 
 	def test_load_sudoku_returns_true_for_valid_matrix_in_txt(self):
 		interface = Interface(self.file_handler_xml2)
-		actual_result = interface.load_sudoku_from_file(self.sudoku_import_txt)
-		self.assertTrue(actual_result)
+		self.assertTrue(
+			interface.load_sudoku_from_file(self.sudoku_import_txt)
+		)
 
-	def test_load_sudoku_returns_false_if_the_matrix_has_no_valid_format(self):
+	def test_load_sudoku_returns_false_if_matrix_has_no_valid_format(self):
 		interface = Interface(self.file_handler_xml1)
-		actual_result = interface.load_sudoku_from_file(self.sudoku_import_txt)
-		self.assertFalse(actual_result)
+		self.assertFalse(
+			interface.load_sudoku_from_file(self.sudoku_import_txt)
+		)
 
-	def test_load_sudoku_matrix_raises_exception_if_unexpected_imputtype(self):
+	def test_load_sudoku_matrix_raises_exception_if_unexpected_type(self):
 		interface = Interface(self.file_handler_xml2)
 		interface.config.inputType = "DAT"
 		self.assertRaises(TypeError, interface.load_sudoku_from_file, "")
-
-	def test_export_sudoku_returns_true_if_valid_file_path(self):
-		interface = Interface(self.file_handler_xml1)
-		interface.load_sudoku_from_file(self.sudoku_import_csv)		
-		self.assertTrue(interface.export_sudoku_to_file(self.sudoku_export))
-
-	def test_export_sudoku_returns_false_if_invalid_file_path(self):
-		interface = Interface(self.file_handler_xml2)
-		actual_result = interface.load_sudoku_from_file(self.sudoku_import_txt)
-		self.assertFalse(interface.export_sudoku_to_file("/test/no"))
-
-	def test_export_sudoku_returns_false_if_no_matrix_loaded(self):
-		interface = Interface(self.file_handler_xml1)
-		self.assertFalse(interface.export_sudoku_to_file(self.sudoku_export))
 
 	def test_solve_sudoku_returns_false_if_no_matrix_loaded(self):
 		interface = Interface(self.file_handler_xml2)
@@ -236,6 +241,7 @@ class TestInterface(unittest.TestCase):
 
 	def test_solve_sudoku_returns_false_if_unsupported_algorithm(self):
 		interface = Interface(self.file_handler_xml1)
+		interface.load_sudoku_from_file(self.sudoku_import_txt)
 		interface.config.defaultAlgorithm = "Super Sudoku Algorithm"
 		self.assertFalse(interface.solve_sudoku())
 
@@ -252,6 +258,23 @@ class TestInterface(unittest.TestCase):
 #	def test_generate_sudoku_returns_true_if_matrix_generated(self):
 #		interface = Interface(self.file_handler_xml1)
 #		self.assertTrue(interface.generate_sudoku())
+
+	def test_export_sudoku_returns_true_if_valid_file_path(self):
+		interface = Interface(self.file_handler_xml1)
+		interface.load_sudoku_from_file(self.sudoku_import_csv)	
+		interface.solve_sudoku()
+		self.assertTrue(interface.export_sudoku_to_file(self.sudoku_export))
+
+	def test_export_sudoku_returns_false_if_invalid_file_path(self):
+		interface = Interface(self.file_handler_xml1)
+		interface.load_sudoku_from_file(self.sudoku_import_csv)
+		interface.solve_sudoku()
+		self.assertFalse(interface.export_sudoku_to_file("/test/no"))
+
+	def test_export_sudoku_returns_false_if_no_matrix_loaded(self):
+		interface = Interface(self.file_handler_xml2)
+		self.assertFalse(interface.export_sudoku_to_file(self.sudoku_export))
+
 
 if __name__ == "__main__":
 	unittest.main()

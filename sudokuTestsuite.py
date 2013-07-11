@@ -9,7 +9,7 @@ cov=coverage(omit=["test*.py"])
 cov.start()
 
 from test_io import TestFileHandler, TestFileHandlerCSV, TestFileHandlerTXT, TestFileHandlerXML
-from test_solver import TestAlgorithm,TestNorvigAlgorithm
+from test_solver import TestAlgorithm,TestNorvigAlgorithm,TestXAlgorithm
 from testConfig import test_configfile
 from testvalidmatrix import TestLine
 from test_main import TestInterface
@@ -24,6 +24,7 @@ if __name__=="__main__":
     #Module solver
     suite.addTest(unittest.makeSuite(TestAlgorithm))
     suite.addTest(unittest.makeSuite(TestNorvigAlgorithm))
+    suite.addTest(unittest.makeSuite(TestXAlgorithm))
      
     #Module config
     suite.addTest(unittest.makeSuite(test_configfile))
@@ -34,10 +35,6 @@ if __name__=="__main__":
     #Module main
     suite.addTest(unittest.makeSuite(TestInterface))
      
-     
-     
-     
-
     unittest.TextTestRunner(verbosity=2).run(suite)
     cov.stop()
     cov.save()

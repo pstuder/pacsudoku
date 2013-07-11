@@ -19,7 +19,7 @@ class TestInterface(unittest.TestCase):
 				"<config>" +
 					"<inputType>TXT</inputType>" +
 					"<outputType>File</outputType>" +
-					"<defaultAlgorithm>Other</defaultAlgorithm>" +
+					"<defaultAlgorithm>XAlgorithm</defaultAlgorithm>" +
 					"<difficultyLevel>High</difficultyLevel>" +
 				"</config>"
 		]
@@ -164,7 +164,7 @@ class TestInterface(unittest.TestCase):
 
 	def test_set_algorithm_raises_type_error_if_invalid(self):
 		interface = Interface(self.file_handler_xml1)
-		interface.config.defaultAlgorithm = "Super Sudoku Algorithm"
+		interface.config.defaultAlgorithm = "MyAlgorithm"
 		self.assertRaises(TypeError, interface._set_algorithm)
 
 	def test_update_config_input_type(self):
@@ -185,7 +185,9 @@ class TestInterface(unittest.TestCase):
 
 	def test_update_config_default_algorithm(self):
 		interface = Interface(self.file_handler_xml1)
-		self.assertTrue(interface.update_config_default_algorithm("Other"))
+		self.assertTrue(
+			interface.update_config_default_algorithm("XAlgorithm")
+		)
 
 	def test_update_config_default_algorithm_if_invalid(self):
 		interface = Interface(self.file_handler_xml2)
@@ -242,7 +244,7 @@ class TestInterface(unittest.TestCase):
 	def test_solve_sudoku_returns_false_if_unsupported_algorithm(self):
 		interface = Interface(self.file_handler_xml1)
 		interface.load_sudoku_from_file(self.sudoku_import_txt)
-		interface.config.defaultAlgorithm = "Super Sudoku Algorithm"
+		interface.config.defaultAlgorithm = "MyAlgorithm"
 		self.assertFalse(interface.solve_sudoku())
 
 	def test_solve_sudoku_returns_true_if_solved(self):
@@ -252,7 +254,7 @@ class TestInterface(unittest.TestCase):
 
 	def test_generate_sudoku_returns_false_if_unsupported_algorithm(self):
 		interface = Interface(self.file_handler_xml2)
-		interface.config.defaultAlgorithm = "Super Sudoku Algoritym"
+		interface.config.defaultAlgorithm = "MyAlgorithm"
 		self.assertFalse(interface.generate_sudoku())
 
 #	def test_generate_sudoku_returns_true_if_matrix_generated(self):

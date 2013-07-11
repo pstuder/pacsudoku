@@ -1,4 +1,5 @@
 from validmatrix import MatrixHandler
+from itertools import product
 
 class Algorithm:
 	
@@ -197,3 +198,167 @@ class Norvig(Algorithm):
 		return self._some(self._search(self._assign(values.copy(),\
 									field, digit)) for digit in values[field])
 
+
+class XAlgorithm(Algorithm):
+	
+	def solve_sudoku(self, size):
+		"""
+		solve_sudoku(size) -> matrix
+		
+		solve a sudoku of an specific size
+		
+		uses the following methods:
+		- costruct_x
+		- costruct_y
+		- exact_cover
+		- select_proper_value
+		- return_exit_mat
+		
+		"""
+		Row, Column = size
+		matrix_lenght = Row * Column
+		list_of_X=self.costruct_x(matrix_lenght)
+		list_of_Y = dict()
+		list_of_Y=self.costruct_y(matrix_lenght,Row,Column,list_of_Y)
+		list_of_X, list_of_Y = self.exact_cover(list_of_X, list_of_Y)
+		self.select_proper_value(list_of_X,list_of_Y)
+		exit_mat=self.return_exit_mat(list_of_X,list_of_Y)
+		if exit_mat==[]:
+			return None
+		else:
+			return exit_mat
+		
+	
+	def return_exit_mat(self,X,Y):
+		"""
+		return_exit_mat(X,Y) -> matrix
+		
+		return_exit_mat return a matrix that will be returned by the method solve_sudoku
+		
+		"""
+		exit_mat=[]
+		for solution in self.solve_list(X, Y, []):
+			for (row, column, lenght) in solution:
+				self._input_matrix.first_matrix[row][column] = lenght
+			exit_mat=self._input_matrix.first_matrix
+		return exit_mat
+		
+	def select_proper_value(self,X,Y):
+		"""
+		select_proper_value(X,Y) -> XAlgorithm
+		
+		select_proper_value return the actual XAlgorithm value after select the columns
+		using the method select
+		
+		"""
+		try:
+			
+			for i, row in enumerate(self._input_matrix.first_matrix):
+				for j, lenght in enumerate(row):
+					if lenght!=0:
+						self.select(X, Y, (i, j, lenght))
+			return self
+		except:
+			return None
+		
+	def costruct_x(self,matrix_lenght):
+		"""
+		costruct_x(matrix_lenght) -> List of tuples
+		costruct_x return the initial list of tuples
+		
+		"""
+		a=self.first_list("rc",matrix_lenght,0,matrix_lenght)
+		b=self.first_list("rn",matrix_lenght,1,matrix_lenght+1)
+		c=self.first_list("cn",matrix_lenght,1,matrix_lenght+1)
+		d=self.first_list("bn",matrix_lenght,1,matrix_lenght+1)
+		return a+b+c+d
+				
+				
+	def first_list(self,text,matrix_lenght1,start,matrix_lenght2):
+		list=[]
+		for rc in product(range(matrix_lenght1), range(start,matrix_lenght2)):
+			list.append((text, rc))
+		return list
+		
+	def costruct_y(self,matrix_lenght,Row,Column,Y):
+		"""
+		costruct_y(matrix_lenght) -> List of tuples
+		costruct_y return the initial list of tuples
+		
+		"""
+
+		for row, column, lenght in product(range(matrix_lenght), range(matrix_lenght), range(1, matrix_lenght + 1)):
+			b = (row // Row) * Row + (column // Column) # Box number
+			Y[(row, column, lenght)] =[("rc", (row, column)),("rn", (row, lenght)), ("cn", (column, lenght)), ("bn", (b, lenght))]
+		return Y
+					
+	def solve(self):
+		"""
+		solve()->MatrixHandler
+		solve execute the solve_sudoku method with a size of 3X3 and returns a MatrixHandler type with the solution 
+		
+		"""
+		return_MatrixHandler=self.solve_sudoku((3,3))
+		if return_MatrixHandler!=None and return_MatrixHandler!=[]:
+			return MatrixHandler(return_MatrixHandler)
+		else:
+			return None
+
+				
+	def exact_cover(self,X, Y):
+		"""
+		exact_cover(X,Y)->X,Y
+		Returns the exact cover list needed to work
+		
+		"""
+		X = {j: set() for j in X}
+		for i, row in Y.items():
+			for j in row:
+				X[j].add(i)
+		return X, Y
+
+	def solve_list(self, X, Y, solution):
+		"""
+		solve_list(X,Y)
+		Returns the list thar will be used to solve the sudoku
+		
+		"""
+		if not X:
+			yield list(solution)
+		else:
+			c = min(X, key=lambda c: len(X[c]))
+			for r in list(X[c]):
+				solution.append(r)
+				cols = self.select(X, Y, r)
+				for s in self.solve_list(X, Y, solution):
+					yield s
+				self.deselect(X, Y, r, cols)
+				solution.pop()
+			
+	def select(self,X, Y, r):
+		"""
+		select(X,Y,r)-> Cols
+		select the actual column to work
+		
+		"""
+		cols = []
+		for j in Y[r]:
+			for i in X[j]:
+				for k in Y[i]:
+					if k != j:
+						X[k].remove(i)
+			cols.append(X.pop(j))
+		return cols
+
+	def deselect(self,X, Y, r, cols):
+		"""
+		desselect(X,Y,r,cols)
+		disselect the actual column 
+		
+		"""
+		for j in reversed(Y[r]):
+			X[j] = cols.pop()
+			for i in X[j]:
+				for k in Y[i]:
+					if k != j:
+						X[k].add(i)

@@ -44,9 +44,7 @@ class Interface():
 			self.algorithm = None
 	
 	def _set_algorithm(self):
-		"""
-		sets/updates algorithm with algorithm type defined in
-		config.defaultAlgorithm.
+		"""Sets/updates algorithm with algorithm type defined in config.
 		
 		Raises ImplementationError if supported algorithm not yet
 		implemented, or TypeError if algorithm not supported.
@@ -58,8 +56,8 @@ class Interface():
 				raise ImplementationError
 			elif self.config.defaultAlgorithm == "Norvig":
 				self.algorithm = solver.Norvig(self.input_matrix)
-			elif self.config.defaultAlgorithm == "Other":
-				raise ImplementationError
+			elif self.config.defaultAlgorithm == "XAlgorithm":
+				self.algorithm = solver.XAlgorithm(self.input_matrix)
 			else:
 				raise TypeError
 

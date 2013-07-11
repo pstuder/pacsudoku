@@ -1,8 +1,8 @@
 class Configfile():
-    supported_inputTypes = ["TXT","CSV"]
-    supported_outputTypes = ["Console","File"]
-    supported_defaultAlgorithms = ["Backtracking","Norvig","Other"]
-    supported_difficultyLevels = ["High","Medium","Low"]
+    supported_inputTypes = ["TXT", "CSV"]
+    supported_outputTypes = ["Console", "File"]
+    supported_defaultAlgorithms = ["Backtracking", "Norvig", "XAlgorithm"]
+    supported_difficultyLevels = ["High","Medium", "Low"]
 
     def __init__(self,inputType="TXT",outputType="Console",defaultAlgorithm="Backtracking",difficultyLevel="Low"):
         """ This is a constructor of a Configfile class."""

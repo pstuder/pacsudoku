@@ -1,6 +1,6 @@
 import unittest
 from itertools import product
-from solver import Algorithm, Norvig, XAlgorithm
+from solver import Algorithm, Norvig, XAlgorithm, Backtracking
 from validmatrix import MatrixHandler
 
 
@@ -403,6 +403,88 @@ def gen_list(text,matrix_lenght1,start,matrix_lenght2):
 		list.append((text, rc))
 	return list
 
+
+class TestBacktrackingAlgorithm(unittest.TestCase):
 	
+	def setUp(self):
+		
+		self.input_matrix=[[0,0,0,9,0,0,0,0,6],\
+						[5,0,0,0,0,0,0,0,9],\
+						[0,4,0,0,0,0,1,0,0],\
+						[0,0,6,0,3,1,9,0,8],\
+						[2,0,0,5,0,9,0,0,7],\
+						[8,0,3,7,4,0,2,0,0],\
+						[0,0,8,0,0,0,0,5,0],\
+						[9,0,0,0,0,0,0,0,4],\
+						[6,0,0,0,0,5,0,0,0]]
+		
+		self.solved_matrix = [[1, 8, 7, 9, 2, 4, 5, 3, 6],\
+							[5, 6, 2, 8, 1, 3, 4, 7, 9],\
+							[3, 4, 9, 6, 5, 7, 1, 8, 2],\
+							[7, 5, 6, 2, 3, 1, 9, 4, 8],\
+							[2, 1, 4, 5, 8, 9, 3, 6, 7],\
+							[8, 9, 3, 7, 4, 6, 2, 1, 5],\
+							[4, 7, 8, 3, 9, 2, 6, 5, 1],\
+							[9, 3, 5, 1, 6, 8, 7, 2, 4],\
+							[6, 2, 1, 4, 7, 5, 8, 9, 3]]
+		
+		self.unsolved_matrix = [[1,2,3,4,5,6,7,8,0],\
+							[0,0,0,0,0,0,0,0,2],\
+							[0,9,0,1,0,0,0,0,3],\
+							[0,0,0,0,0,0,0,0,4],\
+							[0,0,0,0,7,0,0,0,5],\
+							[0,0,0,0,0,0,0,0,6],\
+							[0,0,0,0,1,0,0,0,7],\
+							[0,0,1,0,0,2,0,0,8],\
+							[0,0,0,0,0,0,0,0,9]]	
+	
+		self.mtrx_to_solve = MatrixHandler(self.input_matrix)
+		self.mtrx_solved = MatrixHandler(self.solved_matrix)
+		self.mtrx_unsolved = MatrixHandler(self.unsolved_matrix )
+
+	def test_solve_matrix_return_a_solved_sudoku(self):
+		backtracking = Backtracking(self.mtrx_to_solve)
+		solved_sudoku_matrix = backtracking.solve().first_matrix
+		self.assertEqual(self.mtrx_solved.first_matrix, solved_sudoku_matrix)
+
+	def test_solve_Backtracking_return_True_if_sudoku_is_solved(self):
+		backtracking = Backtracking(self.mtrx_to_solve)
+		solved_sudoku_correct = backtracking.solve_backtracking()
+		self.assertEqual = (True, solved_sudoku_correct)
+	
+	def test_solve_Backtracking_return_False_if_sudoku_is_not_solved(self):
+		backtracking = Backtracking(self.mtrx_unsolved)
+		solved_sudoku_correct = backtracking.solve_backtracking()
+		self.assertFalse = (solved_sudoku_correct)
+	
+	def test_solve_sudoku_with_Bactracking_return_None_if_sudoku_is_not_solved(self):
+		backtracking = Backtracking(self.mtrx_unsolved)
+		solved_sudoku_not_correct = backtracking.solve()
+		self.assertEqual(None,solved_sudoku_not_correct)
+	
+	def test_coordenates_returned_from_first_empty_location_found(self):
+		backtracking = Backtracking(self.mtrx_to_solve)
+		coordenates_empty_location = backtracking.findunassignedlocation(0,0)
+		x =  coordenates_empty_location[1]
+		y = coordenates_empty_location[2]
+		self.assertEqual((0,0),(x,y))
+
+	def test_False_is_returned_if_tentative_number_1_is_not_repeated_in_row_0(self):
+		backtracking = Backtracking(self.mtrx_to_solve)
+		row_number_valid = backtracking.num_used_in_row(0,1)
+		self.assertFalse(row_number_valid)
+		
+	
+	def test_False_is_returned_if_tentative_number_1_is_not_repeated_in_column_1(self):
+		backtracking = Backtracking(self.mtrx_to_solve)
+		column_number_valid = backtracking.num_used_in_column(0,1)
+		self.assertFalse(column_number_valid)
+		
+	def test_False_is_returned_if_tentative_number_1_is_not_repeated_in_submatrix_0_0(self):
+		backtracking = Backtracking(self.mtrx_to_solve)
+		submatrix_number_valid = backtracking.num_used_in_submatrix(0,0,1)
+		self.assertFalse(submatrix_number_valid)
+
 if __name__ == "__main__":
 	unittest.main()
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                

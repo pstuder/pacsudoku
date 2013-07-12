@@ -1,5 +1,5 @@
 import config
-import io
+import inout
 import validmatrix
 import solver
 
@@ -119,9 +119,9 @@ class Interface():
 		"""
 		self._reset_input_matrix()
 		if self.config.inputType == 'CSV':
-			file_handler = io.FileHandlerCSV(file)
+			file_handler = inout.FileHandlerCSV(file)
 		elif self.config.inputType == 'TXT':
-			file_handler = io.FileHandlerTXT(file)
+			file_handler = inout.FileHandlerTXT(file)
 		else:
 			raise TypeError("Unexpected Type: %s" % self.config.inputType)
 		
@@ -134,7 +134,7 @@ class Interface():
 		if self.output_matrix is None:
 			return False
 		try:
-			file_handler = io.FileHandlerTXT(file, 'w')
+			file_handler = inout.FileHandlerTXT(file, 'w')
 			file_handler.export_file(self.output_matrix.first_matrix)
 			return True
 		except IOError:

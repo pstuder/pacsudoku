@@ -2,7 +2,7 @@ import unittest
 from os import remove
 
 from main import Interface
-from io import FileHandlerXML, FileHandlerTXT, FileHandlerCSV
+from inout import FileHandlerXML, FileHandlerTXT, FileHandlerCSV
 
 
 class TestInterface(unittest.TestCase):

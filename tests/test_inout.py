@@ -3,7 +3,7 @@ import csv
 from os import remove, path
 
 from validmatrix import MatrixHandler
-from io import FileHandler, FileHandlerXML, FileHandlerTXT, FileHandlerCSV
+from inout import FileHandler, FileHandlerXML, FileHandlerTXT, FileHandlerCSV
 from config import Configfile
 
 

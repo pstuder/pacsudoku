@@ -1,206 +1,127 @@
 import random 
 
+
 class MatrixHandler:
 	
 	def __init__(self,frst_matrix):
 		self.first_matrix = frst_matrix
 	
 	
-	def lenght_sublist(self):
-		flag = True
+	def length_sublist(self):
+		#Calculate the length of each sublist if length is equal to 9.
 		for i in range(len(self.first_matrix)):
-			if (len(self.first_matrix[i])) != 9:
-				flag = False
-		return flag
+			if len(self.first_matrix[i]) != 9:
+				return False
+		return True
 	
 	
-	def lenght_matrix(self):
-		if len(self.first_matrix) == 9 and self.lenght_sublist() == True :
+	def length_matrix(self):
+		#Return if length of matrix is equal to 9x9.
+		if len(self.first_matrix) == 9 and self.length_sublist() == True:
 			return True
-		else:
-			return False
-	
-	
+		return False
 	
 	def correct_lines(self):
-		if self.lenght_matrix() == True:
-			for i in range(0,9):
-				for j in range(0,9):
-					if self.first_matrix[i][j]>=0 and self.first_matrix[i][j] <= 9:
-						flag = True
-					else:
-						flag = False
-			return flag
-		else:
-			return False
-		
+		#Verify if numbers in rows are between 1 and 9.
+		for i in range(0, 9):
+			for j in range(0, 9):
+				if not (self.first_matrix[i][j] >= 0 and self.first_matrix[i][j] <= 9):
+					return False
+		return True
 	
 	def correct_columns(self):
-		if self.lenght_matrix() == True:
-			for i in range(0,9):
-				for j in range(0,9):
-					if self.first_matrix[j][i]>=0 and self.first_matrix[j][i] <= 9:
-						flag = True
-					else:
-						return False
-			return flag
-		else:
-			return False
-
+		#Verify if numbers in columns are between 1 and 9.
+		for i in range(0, 9):
+			for j in range(0, 9):
+				if not (self.first_matrix[j][i] >= 0 and self.first_matrix[j][i] <= 9):
+					return False
+		return True
+		
 	def repeatednumberscolumns(self):
-		if self.lenght_matrix() == True:
-			flag = True
-			for i in range(0,9):
-				listcolumn = self.first_matrix[0:9][i]
-				for j in range(1,9):
-					if listcolumn.count(j)>1:
-						flag = False
-						break
-			return flag
-		else:
-			return False
+		#Verify if number from 1 to 9 in columns are not repeated.
+		for i in range(0, 9):
+			listcolumn = self.first_matrix[0: 9][i]
+			for j in range(1, 9):
+				if listcolumn.count(j) > 1:
+					return False
+		return True
 		
 	def repeatednumbersline(self):
-		if self.lenght_matrix() == True:
-			flag = True
-			for i in range(0,9):
-				listline = self.first_matrix[i][0:9]
-				for j in range(1,9):
-					if listline.count(j)>1:
-						flag = False
-						break
-			return flag
-		else:
-			return False
+		#Verify if number from 1 to 9 in rows are not repeated.
+		for i in range(0, 9):
+			listline = self.first_matrix[i][0: 9]
+			for j in range(1, 9):
+				if listline.count(j) > 1:
+					return False
+		
+		return True
 	
 	def minimatrixtolist (self,mini_matrix):
+		#Creates a list with sub matrix values.
 		listmatrix = []
-		for i in range(0,3):
-			for j in range(0,3):
+		for i in range(0, 3):
+			for j in range(0, 3):
 				listmatrix.append(mini_matrix[i][j])
 		return listmatrix
 	
 	def countlistmatrix(self,mini_matrix):
+		#Count repeated numbers in list created from sub matrix.
 		listmatrix = self.minimatrixtolist(mini_matrix)
-		flag = True
-		for j in range(1,9):
-			if listmatrix.count(j)>1:
-				flag = False
-				break
-		return flag
+		for j in range(1, 9):
+			if listmatrix.count(j) > 1:
+				return False
+		return True
 	
 	def submatrixvalidnumbers(self,mini_matrix):
-		flag= True
-		for i in range(0,3):
-			for j in range(0,3):
-				if mini_matrix[i][j] >=0 and mini_matrix[i][j]<=9:
-					flag = True
-				else:
-					flag = False
-					break
-		return flag
+		#Verify if numbers in sub matrix are between 1 and 9.
+		for i in range(0, 3):
+			for j in range(0, 3):
+				if not (mini_matrix[i][j] >= 0 and mini_matrix[i][j] <= 9):
+					return False
+		return True
 	
 	def submatrix(self,line,column):
-		minmatrix = []
-		j,endj = column
-		i,endi = line
-		for x in range(i,endi):
-			minmatrix.append(self.first_matrix[x][j:endj])
+		#Creates a matrix with each sub matrix.
+		minmatrix = [[0,0,0],
+				[0,0,0],
+				[0,0,0]]
+		row = (line/3) * 3
+		col = (column/3) * 3
+		for x in range(0, 3):
+			for y in range(0, 3):
+				minmatrix[x][y] = self.first_matrix[x+row][y+col]
 		return minmatrix
 	
+	
 	def valid_submatrix_numbers(self):
-		if self.lenght_matrix() == True:
-			mini_matrix=True
-			if mini_matrix != self.countlistmatrix(self.submatrix((0,3),(0,3))) :
-				mini_matrix = False
-				return mini_matrix
-			if mini_matrix != self.countlistmatrix(self.submatrix((0,3),(3,6))):
-				mini_matrix = False
-				return mini_matrix
-			if mini_matrix != self.countlistmatrix(self.submatrix((0,3),(6,9))):
-				mini_matrix = False
-				return mini_matrix
-			if mini_matrix != self.countlistmatrix(self.submatrix((3,6),(0,3))):
-				mini_matrix = False
-				return mini_matrix
-			if mini_matrix != self.countlistmatrix(self.submatrix((3,6),(3,6))):
-				mini_matrix = False
-				return mini_matrix
-			if mini_matrix != self.countlistmatrix(self.submatrix((3,6),(6,9))):
-				mini_matrix = False
-				return mini_matrix
-			if mini_matrix != self.countlistmatrix(self.submatrix((6,9),(0,3))):
-				mini_matrix = False
-				return mini_matrix
-			if mini_matrix != self.countlistmatrix(self.submatrix((6,9),(3,6))):
-				mini_matrix = False
-				return mini_matrix
-			if mini_matrix != self.countlistmatrix(self.submatrix((6,9),(6,9))):
-				mini_matrix = False
-				return mini_matrix
-			return mini_matrix
-		else:
-			return False
+		#Verify if numbers in sub matrix are between 0 to 9.
+		for i in range (0, 3):
+			for j in range (0, 3):
+				if self.submatrixvalidnumbers(self.submatrix(i*3, j*3)) != True :
+					return False
+		return True
+	
 	
 	def valid_submatrix_repeated(self):
-		if self.lenght_matrix() == True:
-			mini_matrix=True
-			if mini_matrix != self.submatrixvalidnumbers(self.submatrix((0,3),(0,3))):
-				mini_matrix = False
-				return mini_matrix
-			if mini_matrix != self.submatrixvalidnumbers(self.submatrix((0,3),(3,6))):
-				mini_matrix = False
-				return mini_matrix
-			if  mini_matrix != self.submatrixvalidnumbers(self.submatrix((0,3),(6,9))):
-				mini_matrix = False
-				return mini_matrix
-			if  mini_matrix != self.submatrixvalidnumbers(self.submatrix( (3,6),(0,3))):
-				mini_matrix = False
-				return mini_matrix
-			if mini_matrix != self.submatrixvalidnumbers(self.submatrix((3,6),(3,6))):
-				mini_matrix = False
-				return mini_matrix
-			if  mini_matrix != self.submatrixvalidnumbers(self.submatrix((3,6),(6,9))):
-				mini_matrix = False
-				return mini_matrix
-			if  mini_matrix != self.submatrixvalidnumbers(self.submatrix( (6,9),(0,3))):
-				mini_matrix = False
-				return mini_matrix
-			if mini_matrix != self.submatrixvalidnumbers(self.submatrix((6,9),(3,6))):
-				mini_matrix = False
-				return mini_matrix
-			if  mini_matrix != self.submatrixvalidnumbers(self.submatrix((6,9),(6,9))):
-				mini_matrix = False
-				return mini_matrix
-			return mini_matrix
-		else:
-			return False
-	
+		#Verify if numbers in sub matrix are not repeated.
+		for i in range (0, 3):
+			for j in range (0, 3):
+				if self.countlistmatrix(self.submatrix(i*3, j*3)) != True:
+					return False
+		return True
 	
 	def validate(self):
-		flag = True
-		if self.lenght_matrix() == True:
-			if self.correct_lines() != True:
-				flag = False
-				return flag
-			if self.correct_columns()!= True:
-				flag = False
-				return flag
-			if self.repeatednumberscolumns() != True:
-				flag = False
-				return flag
-			if self.repeatednumbersline() != True:
-				flag = False
-				return flag
-			if self.valid_submatrix_numbers() !=True:
-				flag = False
-				return flag
-			if self.valid_submatrix_repeated() !=True:
-				flag = False
-				return flag
-			return flag
-		else:
-			return False
+		#Verify if first sudoku matrix is valid or not.
+		if self.length_matrix() == True:
+			if self.correct_lines() == True and \
+								self.correct_columns() == True and \
+								self.repeatednumberscolumns() == True and \
+								self.repeatednumbersline() == True and \
+								self.valid_submatrix_numbers() == True and \
+								self.valid_submatrix_repeated() == True:
+				return True
+		return False
+	
 # *******************************************        
 # Ariel
 # ******************************************* 
@@ -232,8 +153,8 @@ class MatrixHandler:
 		
 		for i in small_rows:
 			for j in small_columns:
-				available_values_lenght = len(available_values)
-				random_value = random.randint(0,available_values_lenght-1)
+				available_values_length = len(available_values)
+				random_value = random.randint(0,available_values_length-1)
 				self.first_matrix[i][j]=available_values[random_value]
 				available_values.remove(available_values[random_value])
 		return self
@@ -370,8 +291,8 @@ class MatrixHandler:
 		
 	def getOneFromList(self,input_list):
 		""" Get one element of a list randomically """
-		list_lenght = len(input_list)
-		return input_list[random.randint(0,list_lenght-1)]
+		list_length = len(input_list)
+		return input_list[random.randint(0,list_length-1)]
 	
 	def HideCells(self,dificult_level):
 		""" Put zeros to some cells in order to generate the initial status of a sudoku game """

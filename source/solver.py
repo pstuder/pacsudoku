@@ -402,47 +402,71 @@ class XAlgorithm(Algorithm):
 class Backtracking(Algorithm):
 	
 	def num_used_in_submatrix(self, x, y, num):
-		row = (x/3)*3
-		column = (y/3)*3
-		for i in range(0,3):
-			for j in range(0,3):
+		"""
+		Verify if tentative number is not repeated
+		in Sub matrix.
+		
+		"""
+		row = (x/3) * 3
+		column = (y/3) * 3
+		for i in range(0, 3):
+			for j in range(0, 3):
 				if self._input_matrix.first_matrix[i+row][j+column] == num:
 					return True
 		return False
 	
 	def num_used_in_column(self, column, num):
-		for j in range(0,9):
+		"""
+		Verify if tentative number is not repeated
+		in Column.
+		
+		"""
+		for j in range(0, 9):
 			if self._input_matrix.first_matrix[j][column] == num:
 				return True
 		return False
 
 	def num_used_in_row(self, row, num):
-		for i in range(0,9):
+		"""
+		Verify if tentative number is not repeated
+		in row.
+		
+		"""
+		for i in range(0, 9):
 			if self._input_matrix.first_matrix[row][i] ==  num:
 				return True
 		return False
 
 	def num_no_conflicts(self, row, column, num):
-		return self.num_used_in_row(row, num)!=True and self.num_used_in_column(column, num)!=True and self.num_used_in_submatrix(row, column, num) != True
+		"""
+		Join all function and return True or False
+		if number doesn't have any problem.
+		
+		"""
+		return self.num_used_in_row(row, num) != True and \
+			self.num_used_in_column(column, num) != True and \
+			self.num_used_in_submatrix(row, column, num) != True
 
-	def findunassignedlocation(self, row, column):
-		for i in range(row,9):
-			for j in range(column,9):
-				if self._input_matrix.first_matrix[i][j]==0:
+	def find_unassigned_location(self, row, column):
+		#Find any cell with 0.
+		for i in range(row, 9):
+			for j in range(column, 9):
+				if self._input_matrix.first_matrix[i][j] == 0:
 					return True, i, j
-		return False, i , j
+		return False, i, j
 
 	def solve_backtracking(self):
+		"""
+		Solve Sudoku with backtracking algorithm recursive.
+		
+		"""
 		row = 0
-		column =0
-		
-		flag , row, column = self.findunassignedlocation(row, column)
-		
-		if flag !=True:
+		column = 0
+		flag, row, column = self.find_unassigned_location(row, column)
+		if flag != True:
 			return True
-		
-		for num in range(1,10):
-			if self.num_no_conflicts(row, column, num)==True:
+		for num in range(1, 10):
+			if self.num_no_conflicts(row, column, num) == True:
 				self._input_matrix.first_matrix[row][column] = num
 				if self.solve_backtracking() == True:
 					return True
@@ -450,7 +474,11 @@ class Backtracking(Algorithm):
 		return False
 
 	def solve(self):
-		if self.solve_backtracking()==True:
+		"""
+		Returns Sudoku matrix solved.
+		
+		"""
+		if self.solve_backtracking() == True:
 			return MatrixHandler(self._input_matrix.first_matrix)
 		else:
 			return None

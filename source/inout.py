@@ -67,27 +67,35 @@ class FileHandlerTXT(FileHandler):
 			self.file.close()
 
 	def not_empty(self):
-		#file_to_import = open(self.file, 'r')
+		"""
+		Verify if file to import is not empty.
+		
+		"""
 		file_imported = self.file.read()
 		if file_imported != "":
 			return True
-		else:
-			return False
 		self.file.close()
+		return False
 		
 	def import_file(self):
-		#file_to_import = open(self.file, 'r')
+		"""
+		Creates Sudoku matrix with values imported from
+		TXT file.
+		
+		"""
 		file_imported = self.file.readlines()
 		linematrix = []
 		matrix = []
+		exception_lower_chars = 'abcdefghijklmnopqrstuvwxyz'
+		exception_caption_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 		self.file.close()
 		for line in file_imported:
 			linematrix.append(line.rstrip())
 		for i in  range(len(linematrix)):
 			row = linematrix[i]
-			rowint=[]
+			rowint = []
 			for j in range(len(row)):
-				if row[j] in ['a','b','c','d','e','f','g','h','a','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','S','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']:
+				if row[j] in (exception_lower_chars + exception_caption_chars):
 					pass
 				else:
 					rowint.append(int(row[j]))

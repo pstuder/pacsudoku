@@ -91,8 +91,7 @@ class TestFileHandlerTXT(unittest.TestCase):
 		txthandler = FileHandlerTXT(self.file_expected)
 		self.assertRaises(IOError, txthandler.export_file, self.matrix)
 	
-	# -----------------------------------------------------------------
-
+	
 	def test_file_to_import_is_not_empty(self):
 		notemptyfile = self.file_import.not_empty()
 		self.assertEqual(True, notemptyfile)
@@ -103,7 +102,15 @@ class TestFileHandlerTXT(unittest.TestCase):
 		
 	def test_file_import_will_creat_a_9x9_matrix(self):
 		matrix_imported =self.file_import.import_file()
-		matrix_expected = [[4,0,0,0,0,0,8,0,5],[0,3,0,0,0,0,0,0,0],[0,0,0,7,0,0,0,0,0],[0,2,0,0,0,0,0,6,0],[0,0,0,0,8,0,4,0,0],[0,0,0,0,1,0,0,0,0],[0,0,0,6,0,3,0,7,0],[5,0,0,2,0,0,0,0,0],[1,0,4,0,0,0,0,0,0]]
+		matrix_expected = [[4,0,0,0,0,0,8,0,5],
+						[0,3,0,0,0,0,0,0,0],
+						[0,0,0,7,0,0,0,0,0],
+						[0,2,0,0,0,0,0,6,0],
+						[0,0,0,0,8,0,4,0,0],
+						[0,0,0,0,1,0,0,0,0],
+						[0,0,0,6,0,3,0,7,0],
+						[5,0,0,2,0,0,0,0,0],
+						[1,0,4,0,0,0,0,0,0]]
 		self.assertEqual(matrix_imported, matrix_expected)
 
 

@@ -154,9 +154,25 @@ class TestInterface(unittest.TestCase):
 		actual_algorithm = interface.algorithm.__class__.__name__
 		self.assertEqual(expected_algorithm, actual_algorithm)
 
-	def test_set_new_algorithm(self):
+	def test_set_backtracking_algorithm(self):
+		interface = Interface(self.file_handler_xml1)
+		expected_algorithm = "Backtracking"
+		interface.config.defaultAlgorithm = expected_algorithm
+		interface._set_algorithm()
+		actual_algorithm = interface.algorithm.__class__.__name__
+		self.assertEqual(expected_algorithm, actual_algorithm)
+
+	def test_set_norvig_algorithm(self):
 		interface = Interface(self.file_handler_xml2)
 		expected_algorithm = "Norvig"
+		interface.config.defaultAlgorithm = expected_algorithm
+		interface._set_algorithm()
+		actual_algorithm = interface.algorithm.__class__.__name__
+		self.assertEqual(expected_algorithm, actual_algorithm)
+
+	def test_set_xalgorithm_algorithm(self):
+		interface = Interface(self.file_handler_xml1)
+		expected_algorithm = "XAlgorithm"
 		interface.config.defaultAlgorithm = expected_algorithm
 		interface._set_algorithm()
 		actual_algorithm = interface.algorithm.__class__.__name__
@@ -183,10 +199,10 @@ class TestInterface(unittest.TestCase):
 		interface = Interface(self.file_handler_xml2)
 		self.assertFalse(interface.update_config_output_type("Network"))
 
-	def test_update_config_default_algorithm(self):
+	def test_update_config_default_algorithm_norvig(self):
 		interface = Interface(self.file_handler_xml1)
 		self.assertTrue(
-			interface.update_config_default_algorithm("XAlgorithm")
+			interface.update_config_default_algorithm("Norvig")
 		)
 
 	def test_update_config_default_algorithm_if_invalid(self):

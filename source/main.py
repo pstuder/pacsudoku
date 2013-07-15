@@ -46,14 +46,13 @@ class Interface():
 	def _set_algorithm(self):
 		"""Sets/updates algorithm with algorithm type defined in config.
 		
-		Raises ImplementationError if supported algorithm not yet
-		implemented, or TypeError if algorithm not supported.
+		Raises TypeError if algorithm not supported.
 		
 		"""
 		if self.algorithm.__class__.__name__ != self.config.defaultAlgorithm:
 			del(self.algorithm)
 			if self.config.defaultAlgorithm == "Backtracking":
-				raise ImplementationError
+				self.algorithm = solver.Backtracking(self.input_matrix)
 			elif self.config.defaultAlgorithm == "Norvig":
 				self.algorithm = solver.Norvig(self.input_matrix)
 			elif self.config.defaultAlgorithm == "XAlgorithm":
@@ -179,3 +178,18 @@ class Interface():
 			if self.algorithm.solve() is not None:
 				break
 		return True
+
+
+class SudokuConsoleUserInterface(Interface):
+	"""Console class for the PAC Sudoku game."""
+	def run(self):
+		"""Starts the console user interface for the PAC Sudoku game."""
+		print "\n\nStarting the console user interface ..."
+
+
+class SudokuGraphicalUserInterface(Interface):
+	"""GUI class for the PAC Sudoku game."""
+	def run(self):
+		"""Starts the graphical User Interface for the PAC Sudoku game."""
+		print "\n\nStarting the graphical user interface ..."
+

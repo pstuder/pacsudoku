@@ -18,6 +18,7 @@ from test_solver import TestBacktrackingAlgorithm
 from testConfig import test_configfile
 from testvalidmatrix import TestLine
 from test_main import TestInterface
+from test_pacsudoku import TestPACSudokuScript
 
 if __name__=="__main__":
     suite=unittest.TestSuite()
@@ -43,7 +44,9 @@ if __name__=="__main__":
     # Module main
     suite.addTest(unittest.makeSuite(TestInterface))
      
-    # Module main
+    # Module pacsudoku
+    suite.addTest(unittest.makeSuite(TestPACSudokuScript))
+
     unittest.TextTestRunner(verbosity=2).run(suite)
     cov.stop()
     cov.save()

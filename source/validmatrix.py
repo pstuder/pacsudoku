@@ -125,132 +125,65 @@ class MatrixHandler:
 # *******************************************        
 # Ariel
 # ******************************************* 
-	def generator(self,level):   
-		self.createBlankTable()
-		self.fillSubSquare(1)
-		self.fillSubSquare(5)
-		self.fillSubSquare(9)
-		self.fillPosibilities()
-		self.HideCells(level)
-		
-		#return self
-		
-	def createBlankTable(self):
-		self.first_matrix =[[0,0,0,0,0,0,0,0,0],
-				[0,0,0,0,0,0,0,0,0],
-				[0,0,0,0,0,0,0,0,0],
-				[0,0,0,0,0,0,0,0,0],
-				[0,0,0,0,0,0,0,0,0],
-				[0,0,0,0,0,0,0,0,0],
-				[0,0,0,0,0,0,0,0,0],
-				[0,0,0,0,0,0,0,0,0],
-				[0,0,0,0,0,0,0,0,0]]
-   
-	def fillSubSquare(self,square=1):
+	def fill_square(self,table,square=1):
+		"""Fill random values in a selected sub square of a table. """
+		rows =len(table)
+		columns =len(table[0])
 		available_values =[1,2,3,4,5,6,7,8,9]
-		small_rows = self.getSmallRows(square)
-		small_columns = self.getSmallColumns(square)
-		
+		small_rows = self.return_small_rows(table,square)
+		small_columns = self.return_small_columns(table,square)
 		for i in small_rows:
 			for j in small_columns:
-				available_values_length = len(available_values)
-				random_value = random.randint(0,available_values_length-1)
-				self.first_matrix[i][j]=available_values[random_value]
+				lenght = len(available_values)
+				random_value = random.randint(0,lenght-1)
+				table[i][j]=available_values[random_value]
 				available_values.remove(available_values[random_value])
-		return self
-		
-	def getSmallRows(self,square):
-		if square==1 or square==2 or square==3:
+	
+	
+	def create_blank_table(self):
+		"""Return a 9X9 table initialized with zeros. """
+		return [[0,0,0,0,0,0,0,0,0],
+			   [0,0,0,0,0,0,0,0,0],
+			   [0,0,0,0,0,0,0,0,0],
+			   [0,0,0,0,0,0,0,0,0],
+			   [0,0,0,0,0,0,0,0,0],
+			   [0,0,0,0,0,0,0,0,0],
+			   [0,0,0,0,0,0,0,0,0],
+			   [0,0,0,0,0,0,0,0,0],
+			   [0,0,0,0,0,0,0,0,0]]
+	
+	def zero_count(self,table):
+		"""Return a int value with the count of zeros of a matrix. """
+		rows=len(table)
+		columns=len(table[0])
+		zero_count=0
+		for i in range(rows):
+			for j in range(columns):
+				if table[i][j]==0:
+					zero_count+=1
+		return zero_count	   
+	
+	def return_small_rows(self,table,square):
+		"""Return a sub divided list of rows of a matrix. """
+		if square==1 or square==2 or square==3 :
 			return [0,1,2]
 		elif square==4 or square==5 or square==6:
 			return [3,4,5]
 		elif square==7 or square ==8 or square ==9:
 			return [6,7,8]
 	
-	def getSmallColumns(self,square):
+	def return_small_columns(self,table,square):
+		"""Return a sub divided list of columns of a matrix. """
 		if square==1 or square==4 or square==7 :
 			return [0,1,2]
 		elif square==2 or square==5 or square==8:
 			return [3,4,5]
 		elif square==3 or square ==6 or square ==9:
-			return [6,7,8]    
+			return [6,7,8] 
 	
-		
-
-	def fillPosibilities(self):
-		counter=0
-		while self.countZeroQuantity()!=0 and counter<=200:
-			counter+=1
-			a=self.inmediateFill()
-			for i in range(2,7):    
-				self.matrix=self.fillCellWithNPosible_values(i)
-		return self
 	
-	def inmediateFill(self):
-		is_filled = 0
-		rows=len(self.first_matrix)
-		columns=len(self.first_matrix[0])
-		for i in range(rows):
-			for j in range(columns):
-				if self.first_matrix[i][j]==0:
-					posible_values = self.posibleValuesList(i,j)
-					if len(posible_values)==1:
-						self.first_matrix[i][j]=posible_values[0]
-						is_filled=1
-		return is_filled
-		
-	def posibleValuesList(self,row,column):
-		list1 =self.posibleVerticalValues(row,column)
-		list2 =self.posibleHorizontalValues(row,column)
-		list3 =self.posibleSubSquareValues(row,column)
-		list1 =self.invertValues(list1)
-		list2 =self.invertValues(list2)
-		list3 =self.invertValues(list3)
-		completeList=list1+list2+list3
-		imposible_values_list=[]
-		for i in range(1,9): 
-			if i in completeList:
-				imposible_values_list.append(i)
-		posible_values_list = self.invertValues(imposible_values_list)
-		return posible_values_list
-		
-	def posibleVerticalValues(self,row,column):
-		available_values =[1,2,3,4,5,6,7,8,9]
-		rows =len(self.first_matrix)
-		for i in range(rows):
-			if i!=row:
-				value=self.first_matrix[i][column] 
-				if value in available_values: 
-					available_values.remove(value) 
-		return available_values
-		
-	def posibleHorizontalValues(self,row,column):
-		available_values =[1,2,3,4,5,6,7,8,9]
-		columns =len(self.first_matrix[0])
-		for i in range(columns):
-			if i!=column:
-				value=self.first_matrix[row][i] 
-				if value in available_values: 
-					available_values.remove(value) 
-		return available_values
-		
-	def posibleSubSquareValues(self,row,column):
-		available_values =[1,2,3,4,5,6,7,8,9]
-		square = self.getSquare(row,column)
-		small_rows = self.getSmallRows(square)
-		small_columns = self.getSmallColumns(square)
-		initial_value_of_study_point=self.first_matrix[row][column]
-		self.first_matrix[row][column]='study'
-		for i in small_rows:
-			for j in small_columns:
-				if self.first_matrix[i][j]!='study':
-					value=self.first_matrix[i][j]
-					if value in available_values:
-						available_values.remove(value)
-		self.first_matrix[row][column]=initial_value_of_study_point 
-		return available_values
-		
-	def getSquare(self,row,column):
+	def square_return(self,row,column):
+		"""Return a sub square where a row and column point in a matrix. """
 		if row <=2 and column<=2:
 			return 1
 		elif row <=5 and column<=2:
@@ -269,71 +202,175 @@ class MatrixHandler:
 			return 6
 		elif row <=8 and column<=8:
 			return 9
-			
-		
-	def invertValues(self,posible_values):
-		imposible_valuess=[]
-		for i in range(1,9): 
+	
+	
+	def return_posible_vertical_values(self,table,row,column):
+		"""Return a list of possible vertical values. """
+		available_values =[1,2,3,4,5,6,7,8,9]
+		rows =len(table)
+		for i in range(rows):
+			if i!=row:
+				value=table[i][column] 
+				if value in available_values: 
+					available_values.remove(value) 
+		return available_values
+
+	def return_posible_horizontal_values(self,table,row,column):
+		"""Return a list of possible horizontal values. """
+		available_values =[1,2,3,4,5,6,7,8,9]
+		columns =len(table[0])
+		for i in range(columns):
+			if i!=column:
+				value=table[row][i] 
+				if value in available_values: 
+					available_values.remove(value) 
+		return available_values
+	
+	def return_posible_square_values(self,table,row,column):
+		"""Return a list of possible values of a sub square. """
+		available_values =[1,2,3,4,5,6,7,8,9]
+		square = self.square_return(row,column)
+		small_rows = self.return_small_rows(table,square)
+		small_columns = self.return_small_columns(table,square)
+		initial_study_point_value=table[row][column]
+		table[row][column]='estudio'
+		for i in small_rows:
+			for j in small_columns:
+				if table[i][j]!='estudio':
+					value=table[i][j]
+					if value in available_values:
+						available_values.remove(value)
+		table[row][column]=initial_study_point_value 
+		return available_values
+	
+	def return_inverted_values(self,posible_values):
+		"""Return a inverted values list of possible values. """
+		imposible_values=[]
+		for i in range(1,10):
 			if not(i in posible_values):
-				imposible_valuess.append(i)
-		return imposible_valuess
-		
-	def fillCellWithNPosible_values(self,n):
-		rows=len(self.first_matrix)
-		columns=len(self.first_matrix[0])
+				imposible_values.append(i)
+		return imposible_values
+	
+	def return_total_posible_values(self,table,row,column):
+		"""Return a complete values list of possible values. """
+		list1 =self.return_posible_vertical_values(table,row,column)
+		list2 =self.return_posible_horizontal_values(table,row,column)
+		list3 =self.return_posible_square_values(table,row,column)
+		list1 =self.return_inverted_values(list1)
+		list2 =self.return_inverted_values(list2)
+		list3 =self.return_inverted_values(list3)
+		complete_list=list1+list2+list3
+		imposible_values_list=[]
+		for i in range(1,10):
+			if i in complete_list:
+				imposible_values_list.append(i)
+		posible_values_list = self.return_inverted_values(
+												imposible_values_list)
+		return posible_values_list
+	
+	def fill_inmediate_values(self,table):
+		"""Fill the table with unique possible values. """
+		filled = 0
+		rows=len(table)
+		columns=len(table[0])
 		for i in range(rows):
 			for j in range(columns):
-				if self.first_matrix[i][j]==0: 
-					posible_valuess = self.posibleValuesList(i,j)
-					if len(posible_valuess)==n:
-						self.first_matrix[i][j]=self.getOneFromList(posible_valuess)
-		return self  
-		
-	def getOneFromList(self,input_list):
-		""" Get one element of a list randomically """
-		list_length = len(input_list)
-		return input_list[random.randint(0,list_length-1)]
+				if table[i][j]==0:
+					posible_values = self.return_total_posible_values(
+																table,i,j)
+					if len(posible_values)==1:
+						table[i][j]=posible_values[0]
+						filled=1
+		return filled
 	
-	def HideCells(self,dificult_level):
-		""" Put zeros to some cells in order to generate the initial status of a sudoku game """
-		if dificult_level=="Low":
-			max_num_zeros = 35
-		elif dificult_level =="Medium":
-			max_num_zeros = 39
-		elif dificult_level =="High":
-			max_num_zeros = 42
-		else:
-			max_num_zeros = 35
-		zerosinserted=0
+	def return_one_from_list(self,input_list):
+		"""Return a random value from list. """
+		lenght = len(input_list)
+		return input_list[random.randint(0,lenght-1)]
+	
+	def fillCellWithNPosible_values(self,table,n):
+		"""Fill a cell of a table with N possible values. """
+		rows=len(table)
+		columns=len(table[0])
+		for i in range(rows):
+			for j in range(columns):
+				if table[i][j]==0:	  
+					posible_valuess = self.return_total_posible_values(
+															table,i,j)
+					if len(posible_valuess)==n:
+						table[i][j]=self.return_one_from_list(
+															posible_valuess)
+					return 1
+		return 0
+	
+	def fillPosibilities(self,table):
+		"""Fill the possible values of a table. """
 		counter=0
-		rows=len(self.first_matrix)
-		columns=len(self.first_matrix[0])
-		while (max_num_zeros>zerosinserted and counter<10000):
+		while self.zero_count(table)!=0 and counter<=200:
+			counter+=1
+			self.fill_inmediate_values(table)
+			for i in range(2,7):    
+				self.fillCellWithNPosible_values(table,i)
+
+
+	def hide_cells(self,table,level):
+		"""Fill cells with zeros in random order. """
+		if level=="Low":
+			zero_quantity = 35
+		elif level =="Medium":
+			zero_quantity = 39
+		elif level =="High":
+			zero_quantity = 42
+		else:
+			zero_quantity = 35
+		inserted_zeros=self.zero_count(table)
+		counter=0
+		rows=len(table)
+		columns=len(table[0])
+		while (zero_quantity>inserted_zeros and counter<10000):
 			counter+=1
 			row=random.randint(0,rows-1)
 			column=random.randint(0,columns-1)
-			if self.first_matrix[row][column]!=0:
-				if len(self.posibleValuesList(row,column))==1:
-					self.first_matrix[row][column]=0
-					zerosinserted=self.countZeroQuantity()
-		if counter==10000 and dificult_level=="Low" and zerosinserted>35:
-			self.generator(dificult_level)
-		if counter==10000 and dificult_level=="Medium" and (zerosinserted<36 or zerosinserted>39):
-			self.generator(dificult_level)
-		if counter==10000 and dificult_level=="High" and zerosinserted<42 or dificult_level=="High" and zerosinserted<42:
-			self.generator(dificult_level)
-		return self
+			if table[row][column]!=0:
+				if len(self.return_total_posible_values(table,row,column))==1:
+					table[row][column]=0
+					inserted_zeros=self.zero_count(table)
+
+	def generator(self,level):    
+		"""Generate a new SUDOKU game. """
+		sudoku = self.create_blank_table()
+		count= self.zero_count(sudoku)
+		while count!=0:
+			sudoku = self.create_blank_table()
+			self.fill_square(sudoku,1)
+			self.fill_square(sudoku,5)
+			self.fill_square(sudoku,9)
+			self.fillPosibilities(sudoku)
+			count= self.zero_count(sudoku)
+		if level=="Low":
+			sudoku=self.create_exact_sudoku_dificult_matrix(35,sudoku,level)
+		elif level=="Medium":
+			sudoku=self.create_exact_sudoku_dificult_matrix(39,sudoku,level)
+		elif level=="High":
+			sudoku=self.create_exact_sudoku_dificult_matrix(42,sudoku,level)
+		else:
+			sudoku=self.create_exact_sudoku_dificult_matrix(35,sudoku,level)
+		#mat=MatrixHandler(sudoku)
+		self.first_matrix=sudoku
 		
-	def countZeroQuantity(self):
-		""" Count the zeros quantity of a matrix """
-		rows=len(self.first_matrix)
-		columns=len(self.first_matrix[0])
-		zero_quantity=0
-		for i in range(rows):
-			for j in range(columns):
-				if self.first_matrix[i][j]==0:
-					zero_quantity+=1
-		return zero_quantity
+	
+	def create_exact_sudoku_dificult_matrix(self,limit,sudoku,level):
+		"""Create a matrix with the required zeros according to difficult. """
+		while self.zero_count(sudoku)!=limit:
+			sudoku = self.create_blank_table()
+			self.fill_square(sudoku,1)
+			self.fill_square(sudoku,5)
+			self.fill_square(sudoku,9)
+			self.fillPosibilities(sudoku)
+			self.hide_cells(sudoku,level)
+			count= self.zero_count(sudoku)
+		return sudoku
+
 		
 	def printmatrix(self):
 		""" Print the matrix in PRD format """

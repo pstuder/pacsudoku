@@ -1,59 +1,56 @@
 class Configfile():
-    supported_input_type_list = ["TXT", "CSV"]
-    supported_output_type_list = ["Console", "File"]
-    supported_default_algorithm_list = [
+    supported_inputTypes = ["TXT", "CSV"]
+    supported_outputTypes = ["Console", "File"]
+    supported_defaultAlgorithms = [
                                 "Backtracking", 
                                 "Norvig", "XAlgorithm"
                                 ]
-    supported_difficulty_level_list = ["High","Medium", "Low"]
+    supported_difficultyLevels = ["High","Medium", "Low"]
 
     def __init__(
-                 self,input_type="TXT",output_type="Console",
-                 default_algorithm="Backtracking",difficulty_level="Low"):
+                 self,inputType="TXT",outputType="Console",
+                 defaultAlgorithm="Backtracking",difficultyLevel="Low"):
         """ This is a constructor of a Configfile class.
         
             The following instance attributes are created:
-            input_type -- Define the default file input type. 
+            inputType -- Define the default file input type. 
                           If it is not defined, 
                           the  default value is TXT.
-            output_type -- Define the default output type. 
+            outputType -- Define the default output type. 
                            If it is not defined, 
                            the  default value is Console.
-            default_algorithm -- Define the default algorithm that 
+            defaultAlgorithm -- Define the default algorithm that 
                                  will be used to solve 
                                  a SUDOKU. If it is not defined, 
                                  the  default value is Backtracking.
-            difficulty_level -- Define the difficult level of a SUDOKU game. 
+            difficultyLevel -- Define the difficult level of a SUDOKU game. 
                                 If it is not defined, 
                                 the  default value is Low.
         """
-        if self.validate_input_type(
-                        input_type, self.supported_input_type_list)==True:
-            self.input_type=input_type
+        if self.validateInputType(inputType,self.supported_inputTypes)==True:
+            self.inputType=inputType
         else:
-            self.input_type= "TXT"
+            self.inputType= "TXT"
         
-        if self.validate_input_type(
-                        output_type,self.supported_output_type_list)==True:
-            self.output_type=output_type
+        if self.validateInputType(outputType,self.supported_outputTypes)==True:
+            self.outputType=outputType
         else:
-            self.output_type="Console"
+            self.outputType="Console"
             
-        if self.validate_input_type(
-                        default_algorithm,
-                        self.supported_default_algorithm_list)==True:    
-            self.default_algorithm=default_algorithm
+        if self.validateInputType(defaultAlgorithm,
+                                  self.supported_defaultAlgorithms)==True:    
+            self.defaultAlgorithm=defaultAlgorithm
         else:
-            self.default_algorithm="Backtracking"
+            self.defaultAlgorithm="Backtracking"
             
-        if self.validate_input_type(
-                        difficulty_level,
-                        self.supported_difficulty_level_list)==True:
-            self.difficulty_level=difficulty_level
+        if self.validateInputType(difficultyLevel,
+                                  self.supported_difficultyLevels)==True:
+            self.difficultyLevel=difficultyLevel
         else:
-            self.difficulty_level="Low"
+            self.difficultyLevel="Low"
+
         
-    def validate_input_type(self,input_type, format_list):
+    def validateInputType(self,inputtype, formats):
         """
         Validate each input of a Configfile class
         
@@ -62,11 +59,12 @@ class Configfile():
         format_list -- List of possible values for each type.
         """
         status=False
-        for a in range(len(format_list)):
-            if input_type==format_list[a]:
+        for a in range(len(formats)):
+            if inputtype==formats[a]:
                 status=True
                 break 
             else:
                 status=False
         return status
+
 

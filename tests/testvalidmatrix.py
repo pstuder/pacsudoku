@@ -126,26 +126,32 @@ class TestLine(unittest.TestCase):
 # *******************************************        
 # Ariel
 # *******************************************     
-    
-        
     def testHideCells_is_equal_to_35_when_the_dificult_level_is_Low(self):
         input_matrix=MatrixHandler([])
         input_matrix.generator("Low")
-        actual_result= input_matrix.countZeroQuantity()
-        self.assertTrue(actual_result>=1 and actual_result<=35)
+        inp=input_matrix.first_matrix
+        actual_result= input_matrix.zero_count(inp)
+        self.assertTrue(actual_result==35)
+
+    def testHideCells_is_equal_to_35_when_the_dificult_level_is_Other(self):
+        input_matrix=MatrixHandler([])
+        input_matrix.generator("Other")
+        inp=input_matrix.first_matrix
+        actual_result= input_matrix.zero_count(inp)
+        self.assertTrue(actual_result==35)
 
     def testHideCells_is_equal_to_39_when_the_dificult_level_is_Medium(self):
         input_matrix=MatrixHandler([])
         input_matrix.generator("Medium")
-        actual_result=input_matrix.countZeroQuantity()
-        self.assertTrue(actual_result>=36 and actual_result<=39)
-
+        actual_result=input_matrix.zero_count(input_matrix.first_matrix)
+        self.assertTrue(actual_result==39)
+    
     def testHideCells_is_equal_to_42_when_the_dificult_level_is_High(self):
         input_matrix=MatrixHandler([])
         input_matrix.generator("High")
-        actual_result =input_matrix.countZeroQuantity()
-        self.assertTrue(actual_result>=42)
-        
+        actual_result =input_matrix.zero_count(input_matrix.first_matrix) 
+        self.assertTrue(actual_result==42)
+            
     def test_printmatrix_format(self):
         actual_result=self.input_matrix.printmatrix()
         self.assertEqual(self.matrizexpected,actual_result)

@@ -273,9 +273,9 @@ class TestInterface(unittest.TestCase):
 		interface.config.defaultAlgorithm = "MyAlgorithm"
 		self.assertFalse(interface.generate_sudoku())
 
-#	def test_generate_sudoku_returns_true_if_matrix_generated(self):
-#		interface = Interface(self.file_handler_xml1)
-#		self.assertTrue(interface.generate_sudoku())
+	def test_generate_sudoku_returns_true_if_matrix_generated(self):
+		interface = Interface(self.file_handler_xml1)
+		self.assertTrue(interface.generate_sudoku())
 
 	def test_export_sudoku_returns_true_if_valid_file_path(self):
 		interface = Interface(self.file_handler_xml1)

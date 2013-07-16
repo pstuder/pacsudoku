@@ -49,16 +49,15 @@ class Interface():
 		Raises TypeError if algorithm not supported.
 		
 		"""
-		if self.algorithm.__class__.__name__ != self.config.defaultAlgorithm:
-			del(self.algorithm)
-			if self.config.defaultAlgorithm == "Backtracking":
-				self.algorithm = solver.Backtracking(self.input_matrix)
-			elif self.config.defaultAlgorithm == "Norvig":
-				self.algorithm = solver.Norvig(self.input_matrix)
-			elif self.config.defaultAlgorithm == "XAlgorithm":
-				self.algorithm = solver.XAlgorithm(self.input_matrix)
-			else:
-				raise TypeError
+		del(self.algorithm)
+		if self.config.defaultAlgorithm == "Backtracking":
+			self.algorithm = solver.Backtracking(self.input_matrix)
+		elif self.config.defaultAlgorithm == "Norvig":
+			self.algorithm = solver.Norvig(self.input_matrix)
+		elif self.config.defaultAlgorithm == "XAlgorithm":
+			self.algorithm = solver.XAlgorithm(self.input_matrix)
+		else:
+			raise TypeError
 
 	def update_config_input_type(self, new_input_type):
 		"""Returns True if config updated with new_input_type."""

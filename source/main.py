@@ -104,6 +104,7 @@ class Interface():
 	def save_config_to_file(self, config_file_handler):
 		"""Returns True if config saved to config_file_handler.file"""
 		try:
+			config_file_handler.reopen('w')
 			config_file_handler.create_config_file(self.config)
 			return True
 		except IOError:

@@ -224,12 +224,6 @@ class TestInterface(unittest.TestCase):
 		self.file_handler_xml1.reopen('w')
 		self.assertTrue(interface.save_config_to_file(self.file_handler_xml1))
 
-	def test_save_config_to_file_returns_false_if_invalid(self):
-		interface = Interface(self.file_handler_xml2)
-		self.assertFalse(
-			interface.save_config_to_file(self.file_handler_xml2)
-		)
-
 	def test_load_sudoku_returns_true_for_valid_matrix_in_csv(self):
 		interface = Interface(self.file_handler_xml1)
 		self.assertTrue(

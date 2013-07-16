@@ -4,7 +4,8 @@ from os import path
 from xml.parsers.expat import ExpatError
 
 from inout import FileHandlerXML
-from main import SudokuConsoleUserInterface, SudokuGraphicalUserInterface
+from sudokuconsole import SudokuConsoleUserInterface
+from sudokugui import SudokuGraphicalUserInterface
 
 
 class SudokuArgumentParser(ArgumentParser):

@@ -1,9 +1,8 @@
 import time
 import unittest
 from sys import path
-
-
 path.append("../source")
+
 from sudokuinteractive import SudokuInteractive
 from validmatrix import MatrixHandler
 
@@ -56,14 +55,14 @@ class Test_sudoku_interactive(unittest.TestCase):
                                [1,0,4,0,0,0,0,0,0]]
         
         self.duplicate_values_matrix = [[4,3,4,0,0,0,8,0,5],
-                                        [0,3,0,0,0,0,0,0,0],
-                                        [0,0,0,7,0,0,0,0,0],
+                                        [0,3,0,0,7,0,0,0,0],
+                                        [0,0,0,7,0,0,0,5,0],
                                         [0,2,0,0,0,0,0,6,0],
-                                        [0,0,0,0,8,0,4,0,0],
-                                        [0,0,0,0,1,0,0,0,0],
-                                        [0,0,0,6,0,3,0,7,0],
-                                        [5,0,0,2,0,0,0,0,0],
-                                        [1,0,4,0,0,0,0,0,0]]
+                                        [0,0,0,0,8,1,4,0,0],
+                                        [0,0,2,0,1,0,0,0,6],
+                                        [0,5,0,6,0,3,0,7,0],
+                                        [5,0,0,2,0,0,0,0,7],
+                                        [1,0,4,0,3,0,0,0,0]]
     def test_SudokuInteractive_det_matrix_return_a_matrix(self):   
         self.assertTrue(is_equal_to(self.sudoku_interactive.matrix.first_matrix,self.start_matrix))
     
@@ -103,7 +102,9 @@ class Test_sudoku_interactive(unittest.TestCase):
     def test_return_list_of_duplicated_values(self):
         actual_sudoku=SudokuInteractive(self.duplicate_values_matrix)
         actual_value=actual_sudoku.duplicate_values()
-        expected_value="Row 0\nColumn 1\nColumn 2\n"
+        expected_value="Row 0\nColumn 1\nColumn 2\nQuadrant 1\nQuadrant 2\n"+\
+        "Quadrant 3\nQuadrant 4\nQuadrant 5\nQuadrant 6\nQuadrant 7\n"+\
+        "Quadrant 8\nQuadrant 9\n"
         self.assertEqual(expected_value,actual_value)
 
     def test_game_start_is_current_time(self):

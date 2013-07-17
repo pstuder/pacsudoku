@@ -183,16 +183,18 @@ class FileHandlerXML(FileHandler):
 		self.file.close()
 
 class FileHandlerCSV(FileHandler):
+	"""File Handler specific for operation on CSV files."""
 	def import_file(self):
-		selfmatrix=[]
-		selfmatrixaux=[]
+		""" Create Sudoku matrix with values imported from CSV file. """
+		return_matrix=[]
+		auxiliar_matrix=[]
 		with self.file as f:
 			reader = csv.reader(f)
 			if reader!="":
 				for row in reader:
-					for a in range(len(row)):
-						selfmatrixaux.append(int(row[a]))
-					selfmatrix.append(selfmatrixaux)
-					selfmatrixaux=[]
-		return selfmatrix
-
+					for column in range(len(row)):
+						auxiliar_matrix.append(int(row[column]))
+					return_matrix.append(auxiliar_matrix)
+					auxiliar_matrix=[]
+		return return_matrix
+	

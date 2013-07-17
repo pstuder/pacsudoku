@@ -10,7 +10,7 @@ class Algorithm:
 		"""Initializes a new algorithm instance.
 		
 		The following instance attributes are created:
-		_input_matrix -- matrixhandler containing the input sudoku to be solved.
+		output_matrix -- exact copy of input sudoku to be solved.
 		
 		The following instances for default structures used by any algorithm
 		are also created:
@@ -19,7 +19,7 @@ class Algorithm:
 		_columns -- same as _digits
 
 		"""
-		self._input_matrix = matrixhandler
+		self.output_matrix = deepcopy(matrixhandler)
 		
 		self._digits = '123456789'
 		self._rows = 'ABCDEFGHI'
@@ -63,12 +63,9 @@ class Norvig(Algorithm):
 		self._construct_units_and_peers()
 
 	def solve(self):
-		"""
-		solve() -> matrixhandler
+		"""Try to solve output_matrix sudoku using Peter Norvig algorithm.
 		
-		Try to solve the input matrixhandler sudoku using Peter Norvig algorithm.
-		
-		Return output matrixhandler with the sudoku solved
+		Return output matrixhandler with the sudoku solved.
 		Return None, if sudoku has no solution.
 		"""
 		grid = self._to_grid()
@@ -76,6 +73,7 @@ class Norvig(Algorithm):
 		if not isinstance(result_grid, bool):
 			return self._to_matrix(result_grid)
 		else:
+			del(self.output_matrix)
 			return None
 	
 	def _construct_default_data_structures(self):
@@ -122,22 +120,22 @@ class Norvig(Algorithm):
 
 		"""
 		chars = [
-			str(c) for lines in self._input_matrix.first_matrix
+			str(c) for lines in self.output_matrix.first_matrix
 						for c in lines
 		]
 		return dict(zip(self._squares, chars))
 	
 	def _to_matrix(self, grid):
 		"""Returns a new matrix handler from grid converted to a matrix."""
-		matrix = []
+		self.output_matrix.first_matrix = []
 		for letter in self._rows:
-			matrix.append(
+			self.output_matrix.first_matrix.append(
 				[
 					int(grid[field]) for field in self._squares
 										if field[0]==letter
 				]
 			)
-		return MatrixHandler(matrix)
+		return self.output_matrix
 	
 	def _construct_possible_values_grid(self, grid):
 		"""Returns a dictionary grid with possible values for fields in grid.
@@ -235,13 +233,6 @@ class Norvig(Algorithm):
 		
 
 class XAlgorithm(Algorithm):
-	def __init__(self, matrixhandler):
-		"""Initializes a new algorithm instance.
-		
-		The following instance attribute was created:
-		output_matrix -- matrixhandler containing the input sudoku to be solved.
-		"""
-		self.output_matrix = deepcopy(matrixhandler)
 	
 	def solve_sudoku(self, size):
 		""" Solve a sudoku of an specific size.
@@ -383,9 +374,6 @@ class XAlgorithm(Algorithm):
 
 
 class Backtracking(Algorithm):
-	
-	def __init__(self, matrixhandler):
-		self.output_matrix = deepcopy(matrixhandler)
 	
 	def num_used_in_submatrix(self, x, y, num):
 		"""Verify if tentative number is not repeated in Sub matrix."""

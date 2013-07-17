@@ -169,13 +169,13 @@ class Interface():
 		"""
 		self._reset_input_matrix()
 		self.input_matrix = validmatrix.MatrixHandler([])
+		self.input_matrix.generator(self.config.difficultyLevel)
 		try:
 			self._set_algorithm()
 		except TypeError:
 			return False
-		while True:
+		while self.algorithm.solve() is None:
+			self._set_algorithm()
 			self.input_matrix.generator(self.config.difficultyLevel)
-			if self.algorithm.solve() is not None:
-				break
 		return True
 

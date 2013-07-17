@@ -401,39 +401,30 @@ class XAlgorithm(Algorithm):
 
 class Backtracking(Algorithm):
 	
+	def __init__(self, matrixhandler):
+		self.output_matrix = matrixhandler
+	
 	def num_used_in_submatrix(self, x, y, num):
-		"""
-		Verify if tentative number is not repeated
-		in Sub matrix.
-		
-		"""
+		"""Verify if tentative number is not repeated in Sub matrix."""
 		row = (x/3) * 3
 		column = (y/3) * 3
 		for i in range(0, 3):
 			for j in range(0, 3):
-				if self._input_matrix.first_matrix[i+row][j+column] == num:
+				if self.output_matrix.first_matrix[i+row][j+column] == num:
 					return True
 		return False
 	
 	def num_used_in_column(self, column, num):
-		"""
-		Verify if tentative number is not repeated
-		in Column.
-		
-		"""
+		"""Verify if tentative number is not repeated in Column."""
 		for j in range(0, 9):
-			if self._input_matrix.first_matrix[j][column] == num:
+			if self.output_matrix.first_matrix[j][column] == num:
 				return True
 		return False
 
 	def num_used_in_row(self, row, num):
-		"""
-		Verify if tentative number is not repeated
-		in row.
-		
-		"""
+		"""Verify if tentative number is not repeated in row."""
 		for i in range(0, 9):
-			if self._input_matrix.first_matrix[row][i] ==  num:
+			if self.output_matrix.first_matrix[row][i] ==  num:
 				return True
 		return False
 
@@ -451,15 +442,12 @@ class Backtracking(Algorithm):
 		#Find any cell with 0.
 		for i in range(row, 9):
 			for j in range(column, 9):
-				if self._input_matrix.first_matrix[i][j] == 0:
+				if self.output_matrix.first_matrix[i][j] == 0:
 					return True, i, j
 		return False, i, j
 
 	def solve_backtracking(self):
-		"""
-		Solve Sudoku with backtracking algorithm recursive.
-		
-		"""
+		"""Solve Sudoku with backtracking algorithm recursive."""
 		row = 0
 		column = 0
 		flag, row, column = self.find_unassigned_location(row, column)
@@ -467,18 +455,16 @@ class Backtracking(Algorithm):
 			return True
 		for num in range(1, 10):
 			if self.num_no_conflicts(row, column, num) == True:
-				self._input_matrix.first_matrix[row][column] = num
+				self.output_matrix.first_matrix[row][column] = num
 				if self.solve_backtracking() == True:
 					return True
-				self._input_matrix.first_matrix[row][column] = 0
+				self.output_matrix.first_matrix[row][column] = 0
 		return False
 
 	def solve(self):
-		"""
-		Returns Sudoku matrix solved.
-		
-		"""
+		"""Returns Sudoku matrix solved."""
+				
 		if self.solve_backtracking() == True:
-			return MatrixHandler(self._input_matrix.first_matrix)
+			return self.output_matrix
 		else:
 			return None

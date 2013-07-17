@@ -52,6 +52,7 @@ class SudokuInteractive():
         rand=random.randint(0,len(input_list)-1)
         x,y = input_list[rand]
         self.matrix.first_matrix[x][y]=self.solved.first_matrix[x][y]
+        return x,y
         
     def duplicate_values(self):
         """ Return the duplicate values in rows and columns. """
@@ -123,7 +124,7 @@ class SudokuInteractive():
                         available_values.remove(value) 
                     else:
                         dup_list= "Quadrant "+ str(self.get_quadrant(i,j)) + "\n"
-                        return dup_list 
+        return dup_list 
        
     
     def get_quadrant(self,row,column):

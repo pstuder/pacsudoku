@@ -4,13 +4,384 @@ from tkFont import Font
 from Tkinter import Button
 from Tkinter import Canvas
 from Tkinter import Frame
+from Tkinter import StringVar
 from Tkinter import Label
 from Tkinter import Menu
 from Tkinter import Menubutton
 from Tkinter import PhotoImage
+from Tkinter import Radiobutton
+from Tkinter import Toplevel
 
 from main import Interface
 from sudokuinteractive import SudokuInteractive
+
+
+class SudokuGUISettingsUtilities():
+	"""Abstrac Class for the Sudoku GUI Settings utilites"""
+	def __init__(self, sudoku_settings_gui, sudoku_gui):
+		"""Initializes the Sudoku GUI settings utility.
+		
+		Raises NotImplementedError if attempting to initialize
+		since abstrac class.
+		
+		Creates the following instance attribute:
+		gui -- A reference to the Sudoku GUI.
+		settings_gui --
+		
+		"""
+		if self.__class__.__name__ == "SudokuGUIUtilities":
+			raise NotImplementedError("Can't instance from abstract class!")
+		self.gui = sudoku_gui
+		self.settings_gui = sudoku_settings_gui
+
+
+class SudokuGUISettingsBuilder(SudokuGUISettingsUtilities):
+	"""Class containing methos to build the PAC Sudoku GUI."""
+	def __init__(self, sudoku_settings_gui, sudoku_gui):
+		"""Initializes a new sudoku gui settings builder.
+		
+		It first creates instance attributes of SudokuGUISettingsUtilities.
+		Additionally it creates the following instance attributes:
+		input_type_builder -- Set of methods for building input type
+		output_type_builder -- Set of methods for building output type
+		default_algorithm_builder -- Set of methods for building algorithm
+		difficulty_level_builder -- Set of methods for building difficulty
+		bottom_frame_builder -- Set of methods for building the bottom frame
+		
+		"""
+		SudokuGUISettingsUtilities.__init__(
+			self,
+			sudoku_settings_gui,
+			sudoku_gui
+		)
+		self.input_type_builder = GUISettingsInputTypeBuilder(
+			sudoku_settings_gui, sudoku_gui
+		)
+		self.output_type_builder = GUISettingsOutputTypeBuilder(
+			sudoku_settings_gui, sudoku_gui
+		)
+		self.default_algorithm_builder = GUISettingsDefaultAlgorithmBuilder(
+			sudoku_settings_gui, sudoku_gui
+		)
+		self.difficulty_level_builder = GUISettingsDifficultyLevelBuilder(
+			sudoku_settings_gui, sudoku_gui
+		)
+		self.bottom_frame_builder = GUISettingsBottomFrameBuilder(
+			sudoku_settings_gui, sudoku_gui
+		)
+	
+	def build_main_frame(self):
+		"""Builds all the frames for the Sudoku GUI Settings dialog."""
+		self.input_type_builder.build_input_type_frame()
+		self.input_type_builder.build_input_type_radio_buttons()
+		self.output_type_builder.build_output_type_frame()
+		self.output_type_builder.build_output_type_radio_buttons()
+		self.default_algorithm_builder.build_default_algorithm_frame()
+		self.default_algorithm_builder.build_default_algorithm_radio_buttons()
+		self.difficulty_level_builder.build_difficulty_level_frame()
+		self.difficulty_level_builder.build_difficulty_level_radio_buttons()
+		self.bottom_frame_builder.build_bottom_frame()
+		self.bottom_frame_builder.build_bottom_frame_buttons()
+
+class GUISettingsInputTypeBuilder(SudokuGUISettingsUtilities):
+	"""Class containing methos to build confg.inputType settings."""
+	def __init__(self, sudoku_settings_gui, sudoku_gui):
+		"""Initializes a new sudoku gui settings input type builder.
+		
+		It first creates the instance attributes of SudokuGUISettingsUtilities.
+		Additionally it creates instance attributes for settings_gui.
+		
+		"""
+		SudokuGUISettingsUtilities.__init__(
+			self,
+			sudoku_settings_gui,
+			sudoku_gui
+		)
+		self.settings_gui.input_type_radio_buttons = []
+		self.settings_gui.input_type_string_var = StringVar()
+		self.settings_gui.input_type_string_var.set(self.gui.config.inputType)
+		
+	def build_input_type_frame(self):
+		"""Builds the frame for the input type settings."""
+		self.settings_gui.input_type_frame = Frame(
+			self.settings_gui,
+			width=300,
+			height=32
+		)
+		self.settings_gui.input_type_frame.pack(side="top")
+		self.settings_gui.input_type_label = Label(
+			self.settings_gui.input_type_frame,
+			text="Input Type:",
+		)
+		self.settings_gui.input_type_label.pack(side="top")
+		self.settings_gui.input_type_buttons_frame = Frame(
+			self.settings_gui.input_type_frame,
+			width=300,
+			height=16
+		)
+		self.settings_gui.input_type_buttons_frame.pack(side="bottom")
+	
+	def build_input_type_radio_buttons(self):
+		"""Builds dinamically the supported input types radio buttons."""
+		for item in self.gui.config.supported_inputTypes:
+			self.settings_gui.input_type_radio_buttons.append(
+				Radiobutton(
+					self.settings_gui.input_type_buttons_frame,
+					text=item,
+					value=item,
+					variable=self.settings_gui.input_type_string_var,
+					command=self.settings_gui.update_input_type_config
+				)
+			)
+		for radio_button in self.settings_gui.input_type_radio_buttons:
+			radio_button.pack(side="left")
+
+
+class GUISettingsOutputTypeBuilder(SudokuGUISettingsUtilities):
+	"""Class containing methos to build confg.outputType settings."""
+	def __init__(self, sudoku_settings_gui, sudoku_gui):
+		"""Initializes a new sudoku gui settings output type builder.
+		
+		It first creates the instance attributes of SudokuGUISettingsUtilities.
+		Additionally it creates instance attributes for settings_gui.
+		
+		"""
+		SudokuGUISettingsUtilities.__init__(
+			self,
+			sudoku_settings_gui,
+			sudoku_gui
+		)
+		self.settings_gui.output_type_radio_buttons = []
+		self.settings_gui.output_type_string_var = StringVar()
+		self.settings_gui.output_type_string_var.set(
+			self.gui.config.outputType
+		)
+		
+	def build_output_type_frame(self):	
+		"""Builds the frame for the output type settings."""
+		self.settings_gui.output_type_frame = Frame(
+			self.settings_gui,
+			width=300,
+			height=32
+		)
+		self.settings_gui.output_type_frame.pack(side="top")
+		self.settings_gui.output_type_label = Label(
+			self.settings_gui.output_type_frame,
+			text="Output Type:",
+		)
+		self.settings_gui.output_type_label.pack(side="top")
+		self.settings_gui.output_type_buttons_frame = Frame(
+			self.settings_gui.output_type_frame,
+			width=300,
+			height=16
+		)
+		self.settings_gui.output_type_buttons_frame.pack(side="bottom")
+	
+	def build_output_type_radio_buttons(self):
+		"""Builds dinamically the supported output types radio buttons."""
+		for item in self.gui.config.supported_outputTypes:
+			self.settings_gui.output_type_radio_buttons.append(
+				Radiobutton(
+					self.settings_gui.output_type_buttons_frame,
+					text=item,
+					value=item,
+					variable=self.settings_gui.output_type_string_var,
+					command=self.settings_gui.update_output_type_config
+				)
+			)
+		for radio_button in self.settings_gui.output_type_radio_buttons:
+			radio_button.pack(side="left")
+
+
+class GUISettingsDefaultAlgorithmBuilder(SudokuGUISettingsUtilities):
+	"""Class containing methos to build confg.defaultAlgorithm settings."""
+	def __init__(self, sudoku_settings_gui, sudoku_gui):
+		"""Initializes a new sudoku gui settings default algorithm builder.
+		
+		It first creates the instance attributes of SudokuGUISettingsUtilities.
+		Additionally it creates instance attributes for settings_gui.
+		
+		"""
+		SudokuGUISettingsUtilities.__init__(
+			self,
+			sudoku_settings_gui,
+			sudoku_gui
+		)
+		self.settings_gui.default_algorithm_radio_buttons = []
+		self.settings_gui.default_algorithm_string_var = StringVar()
+		self.settings_gui.default_algorithm_string_var.set(
+			self.gui.config.defaultAlgorithm
+		)
+		
+	def build_default_algorithm_frame(self):	
+		"""Builds the frame for the default algorithm settings."""
+		self.settings_gui.default_algorithm_frame = Frame(
+			self.settings_gui,
+			width=300,
+			height=32
+		)
+		self.settings_gui.default_algorithm_frame.pack(side="top")
+		self.settings_gui.default_algorithm_label = Label(
+			self.settings_gui.default_algorithm_frame,
+			text="Default Algorithm:",
+		)
+		self.settings_gui.default_algorithm_label.pack(side="top")
+		self.settings_gui.default_algorithm_buttons_frame = Frame(
+			self.settings_gui.default_algorithm_frame,
+			width=300,
+			height=16
+		)
+		self.settings_gui.default_algorithm_buttons_frame.pack(side="bottom")
+	
+	def build_default_algorithm_radio_buttons(self):
+		"""Builds dinamically the supported algorithms radio buttons."""
+		for item in self.gui.config.supported_defaultAlgorithms:
+			self.settings_gui.default_algorithm_radio_buttons.append(
+				Radiobutton(
+					self.settings_gui.default_algorithm_buttons_frame,
+					text=item,
+					value=item,
+					variable=self.settings_gui.default_algorithm_string_var,
+					command=self.settings_gui.update_default_algorithm_config
+				)
+			)
+		for radio_button in self.settings_gui.default_algorithm_radio_buttons:
+			radio_button.pack(side="left")
+
+
+class GUISettingsDifficultyLevelBuilder(SudokuGUISettingsUtilities):
+	def __init__(self, sudoku_settings_gui, sudoku_gui):
+		"""Initializes a new sudoku gui settings difficulty level builder.
+		
+		It first creates the instance attributes of SudokuGUISettingsUtilities.
+		Additionally it creates instance attributes for settings_gui.
+		
+		"""
+		SudokuGUISettingsUtilities.__init__(
+			self,
+			sudoku_settings_gui,
+			sudoku_gui
+		)
+		self.settings_gui.difficulty_level_radio_buttons = []
+		self.settings_gui.difficulty_level_string_var = StringVar()
+		self.settings_gui.difficulty_level_string_var.set(
+			self.gui.config.difficultyLevel
+		)
+		
+	def build_difficulty_level_frame(self):	
+		"""Builds the frame for the difficulty level settings."""
+		self.settings_gui.difficulty_level_frame = Frame(
+			self.settings_gui,
+			width=300,
+			height=32
+		)
+		self.settings_gui.difficulty_level_frame.pack(side="top")
+		self.settings_gui.difficulty_level_label = Label(
+			self.settings_gui.difficulty_level_frame,
+			text="Difficulty Level:",
+		)
+		self.settings_gui.difficulty_level_label.pack(side="top")
+		self.settings_gui.difficulty_level_buttons_frame = Frame(
+			self.settings_gui.difficulty_level_frame,
+			width=300,
+			height=16
+		)
+		self.settings_gui.difficulty_level_buttons_frame.pack(side="bottom")
+	
+	def build_difficulty_level_radio_buttons(self):
+		"""Builds dinamically the supported difficulty level radio buttons."""
+		for item in self.gui.config.supported_difficultyLevels:
+			self.settings_gui.difficulty_level_radio_buttons.append(
+				Radiobutton(
+					self.settings_gui.difficulty_level_buttons_frame,
+					text=item,
+					value=item,
+					variable=self.settings_gui.difficulty_level_string_var,
+					command=self.settings_gui.update_difficulty_level_config
+				)
+			)
+		for radio_button in self.settings_gui.difficulty_level_radio_buttons:
+			radio_button.pack(side="left")
+
+
+class GUISettingsBottomFrameBuilder(SudokuGUISettingsUtilities):
+	"""Class containing methos to build settings bottom frame."""
+	def build_bottom_frame(self):
+		"""Builds the frame for the buttons of the settings UI."""
+		self.settings_gui.bottom_frame = Frame(
+			self.settings_gui,
+			width=300,
+			height=24
+		)
+		self.settings_gui.bottom_frame.pack(side="bottom")
+	
+	def build_bottom_frame_buttons(self):
+		"""Builds the buttons for the bottom frame of the settings UI."""
+		self.settings_gui.save_button = Button(
+			self.settings_gui.bottom_frame,
+			text="Save",
+			width=12,
+			command=self.settings_gui.save_and_exit
+		)
+		self.settings_gui.save_button.pack(side="left")
+		self.settings_gui.close_button = Button(
+			self.settings_gui.bottom_frame,
+			text="Close",
+			width=12,
+			command=self.settings_gui.destroy
+		)
+		self.settings_gui.close_button.pack(side="left")
+		
+
+class SudokuGUISettingsDialog(Toplevel):
+	"""GUI class for the PAC Sudoku Settings."""
+	def __init__(self, sudoku_gui, **kwargs):
+		"""Builds and initializes the GUI as a top level UI.
+		
+		First, the TopLevel instance attributes are created, additionally
+		the following instance attributes are created:
+		settings_builder -- Set of methods for building the PAC Sudoku GUI
+		gui -- Instance of the main Sudoku Game GUI.
+		
+		"""
+		Toplevel.__init__(self, **kwargs)
+		self.settings_builder = SudokuGUISettingsBuilder(self, sudoku_gui)
+		self.gui = sudoku_gui
+		self._createWidgets()
+		
+	def save_and_exit(self):
+		"""Save settings to currently loaded .xml config file and exits."""
+		self.grab_release()
+		self.destroy()
+		self.gui.settings_action_set.save_settings_action()
+
+	def update_input_type_config(self):
+		"""Updates config input type with value set since radio buttons."""
+		self.gui.update_config_input_type(
+			self.input_type_string_var.get()
+		)
+
+	def update_output_type_config(self):
+		"""Updates config output type with value set since radio buttons."""
+		self.gui.update_config_output_type(
+			self.output_type_string_var.get()
+		)
+
+	def update_default_algorithm_config(self):
+		"""Updates config algorithm with value set since radio buttons."""
+		self.gui.update_config_default_algorithm(
+			self.default_algorithm_string_var.get()
+		)
+
+	def update_difficulty_level_config(self):
+		"""Updates config difficulty with value set since radio buttons."""
+		self.gui.update_config_difficulty_level(
+			self.difficulty_level_string_var.get()
+		)
+
+	def _createWidgets(self):
+		"""Calls the gui_builder methods to build the Settings GUI"""
+		self.settings_builder.build_main_frame()
 
 
 class SudokuGraphicalUserInterface(Interface, Frame):
@@ -570,15 +941,12 @@ class SudokuGUISolveActionSet(SudokuGUIUtilities):
 class SudokuGUISettingsActionSet(SudokuGUIUtilities):
 	"""Class containing action commands for changing config settings."""
 	def edit_settings_action(self):
-		"""Opens the Edit Settings dialog to edit each config setting.
-		
-		NOT YET IMPLEMENTED
-		
-		"""
-		tkMessageBox.showwarning(
-			"Not Implemented",
-			"Sudoku Settings Class not yet implemented!"
-		)
+		"""Opens the Edit Settings dialog to edit each config setting."""
+		settings_dialog = SudokuGUISettingsDialog(self.gui)
+		settings_dialog.title("PAC Sudoku Settings")
+		settings_dialog.geometry("250x200+30+30")
+		settings_dialog.transient(self.gui)
+		settings_dialog.grab_set()
 
 	def save_settings_action(self):
 		"""Saves gui.config settings to loaded .xml config file."""

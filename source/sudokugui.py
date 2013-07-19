@@ -1,5 +1,7 @@
 import tkFileDialog
 import tkMessageBox
+from datetime import datetime
+from datetime import timedelta
 from tkFont import Font
 from Tkinter import Button
 from Tkinter import Canvas
@@ -399,6 +401,8 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 		interactive -- Sudokuinteractive initialized as None
 		violation -- Violation flag set to False
 		currently_editing -- Canvas image ID of a square initialized as None
+		timer -- Sudoku timer
+		_timer_increment -- Used to increment by 1 second the timer
 		
 		"""
 		Interface.__init__(self, config_file_handler)
@@ -410,6 +414,8 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 		self.interactive = None
 		self.violation = False
 		self.currently_editing = None
+		self.timer = datetime(1900,1,1)
+		self._timer_increment = timedelta(seconds=1)
 		Frame.__init__(self, master)
 		self.pack()
 		self._createWidgets()
@@ -431,11 +437,16 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 		Left Mouse Button: For selecting a square in the sudoku field.
 		Key Pressed: For populating the selected square.
 		
+		And one new instance attribute is created:
+		last_game_start -- Records the start time of the new game.
+		
 		"""
 		self.reset_interactive()
 		self.interactive = SudokuInteractive(self.input_matrix.first_matrix)
 		self.sudoku_canvas.bind("<Button-1>", self._init_update_square)
 		self.bind_all("<Key>", self.play_action_set.update_square_action)
+		self.last_game_start = self.interactive.game_start()
+		self._init_update_time()
 
 	def build_squares_from_input_matrix(self):
 		"""Draws a new sudoku from input_matrix and starts interactive mode.
@@ -473,6 +484,7 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 		
 		"""
 		if self.interactive is not None:
+			self._reset_time()
 			del(self.interactive)
 			self.violation = False
 			self.currently_editing = None
@@ -487,6 +499,13 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 		self.gui_builder.build_main_frame_content()
 		self.gui_builder.build_bottom_frame_content()
 
+	def _reset_time(self):
+		"""Resets the sudoku timer."""
+		self.after_cancel(self._job)
+		del(self._job)
+		del(self.timer)
+		self.timer = datetime(1900,1,1)
+	
 	def _init_update_square(self, event):
 		"""Starts the process to update a clicked square in the sudoku canvas.
 		
@@ -529,6 +548,12 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 			image=self.list_edit_squares[current_digit]
 		)
 
+	def _init_update_time(self):
+		"""Starts the process to update timer each second."""
+		self.time_label.configure(text=self.timer.strftime("%H:%M:%S"))
+		self.timer += self._timer_increment
+		self._job = self.after(1000, self._init_update_time)
+	
 	def _set_clicked_square_position_in_canvas(self):
 		"""Set square coordinates in the canvas after clicking on one.
 		
@@ -662,7 +687,7 @@ class SudokuGUIMainFrameBuilder(SudokuGUIUtilities):
 		self.icon_frame_builder.build_hint_icon()
 		self.gui.time_label = Label(
 			self.gui.icon_frame,
-			text="0:00",
+			text=self.gui.timer.strftime("%H:%M:%S"),
 			font=Font(size=30)
 		)
 		self.gui.time_label.pack(side="right")
@@ -1015,11 +1040,13 @@ class SudokuGUIPlayActionSet(SudokuGUIUtilities):
 			image=target_list_squares[digit]
 		)
 		if self.gui.interactive.sudoku_is_solved():
+			time = self.gui.interactive.game_time(self.gui.last_game_start)
+			self.gui.reset_interactive()
 			tkMessageBox.showinfo(
 				"Sudoku Solved",
-				"Congratulations!\n\nYou have solved the Sudoku!"
+				"Congratulations!\n\nYou have solved the Sudoku!\n" +
+				"Time: %s seconds." % int(time)
 			)
-			self.gui.reset_interactive()
 	
 	def generate_action(self):
 		"""Randomly generate a new sudoku and start interactive mode.

@@ -31,7 +31,7 @@ class SudokuGUISettingsUtilities():
 		settings_gui --
 		
 		"""
-		if self.__class__.__name__ == "SudokuGUIUtilities":
+		if self.__class__.__name__ == "SudokuGUISettingsUtilities":
 			raise NotImplementedError("Can't instance from abstract class!")
 		self.gui = sudoku_gui
 		self.settings_gui = sudoku_settings_gui
@@ -140,7 +140,7 @@ class GUISettingsInputTypeBuilder(SudokuGUISettingsUtilities):
 
 
 class GUISettingsOutputTypeBuilder(SudokuGUISettingsUtilities):
-	"""Class containing methos to build confg.outputType settings."""
+	"""Class containing methods to build confg.outputType settings."""
 	def __init__(self, sudoku_settings_gui, sudoku_gui):
 		"""Initializes a new sudoku gui settings output type builder.
 		
@@ -346,7 +346,7 @@ class SudokuGUISettingsDialog(Toplevel):
 		gui -- Instance of the main Sudoku Game GUI.
 		
 		"""
-		Toplevel.__init__(self, **kwargs)
+		Toplevel.__init__(self, sudoku_gui, **kwargs)
 		self.settings_builder = SudokuGUISettingsBuilder(self, sudoku_gui)
 		self.gui = sudoku_gui
 		self._createWidgets()
@@ -425,6 +425,7 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 		print "\n\nStarting the graphical user interface ..."
 		self.master.title("PAC Sudoku")
 		self.master.minsize(362, 462)
+		self.master.protocol("WM_DELETE_WINDOW", self._quit_handler)
 		self.mainloop()
 		
 	def start_interactive_mode(self):
@@ -569,6 +570,19 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 		self.current_square_x = (pionterx - rootx)//40
 		self.current_square_y = (piontery - rooty)//40
 	
+	def _quit_handler(self):
+		"""Handler for verifying if changes to config should be saved."""
+		selection = False
+		if self.config_changes_not_saved(self.config_file):
+			selection = tkMessageBox.askyesno(
+				"Changes to Config settings not saved",
+				"Changes to config settings have not been saved.\n" +
+				"Would you like to save settings before closing?"
+			)
+		if selection:
+			self.settings_action_set.save_settings_action()
+		self.quit()
+
 
 class SudokuGUIUtilities():
 	"""Abstrac Class for the Sudoku GUI utilites"""
@@ -652,7 +666,7 @@ class SudokuGUIBuilder(SudokuGUIUtilities):
 			self.gui.bottom_frame,
 			text="Quit",
 			width=24,
-			command=self.gui.quit
+			command=self.gui._quit_handler
 		)
 		self.gui.quit_button.pack(side="right")
 		self.gui.solve_button = Button(

@@ -7,6 +7,24 @@ from inout import FileHandlerXML
 from sudokuconsole import SudokuConsoleUserInterface
 from sudokugui import SudokuGraphicalUserInterface
 
+def main():
+	parser = SudokuArgumentParser()
+	args = parser.parse_args()
+	config_file_name = args.config
+	if path.exists(config_file_name):
+		try:
+			config_file_handler = FileHandlerXML(config_file_name)
+		except ExpatError:
+			config_file_handler = FileHandlerXML(config_file_name, 'w')
+	else:
+		config_file_handler = FileHandlerXML(config_file_name, 'w')
+	if args.gui:
+		pacsudoku = SudokuGraphicalUserInterface(config_file_handler)
+	else:
+		pacsudoku = SudokuConsoleUserInterface(config_file_handler)	
+	
+	# Run the game!
+	pacsudoku.run()
 
 class SudokuArgumentParser(ArgumentParser):
 	"""Argument Parser for the PAC Sudoku game."""
@@ -70,21 +88,4 @@ class SudokuArgumentParser(ArgumentParser):
 
 
 if __name__ == "__main__":
-	parser = SudokuArgumentParser()
-	args = parser.parse_args()
-	config_file_name = args.config
-	if path.exists(config_file_name):
-		try:
-			config_file_handler = FileHandlerXML(config_file_name)
-		except ExpatError:
-			config_file_handler = FileHandlerXML(config_file_name, 'w')
-	else:
-		config_file_handler = FileHandlerXML(config_file_name, 'w')
-	if args.gui:
-		pacsudoku = SudokuGraphicalUserInterface(config_file_handler)
-	else:
-		pacsudoku = SudokuConsoleUserInterface(config_file_handler)	
-	
-	# Run the game!
-	pacsudoku.run()
-
+	main()

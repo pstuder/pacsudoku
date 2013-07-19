@@ -3,7 +3,7 @@ from sys import argv
 from os import remove, path
 from subprocess import Popen, PIPE
 
-from pacsudoku import SudokuArgumentParser
+from pacsudoku import SudokuArgumentParser, main
 
 
 class TestPACSudokuScript(unittest.TestCase):
@@ -97,6 +97,16 @@ class TestPACSudokuScript(unittest.TestCase):
 		self.assertEqual(expected_config_metavar, actual_arguments.config)
 		self.assertTrue(actual_arguments.gui)
 		
+	def test_main_with_valid_config_file(self):
+		argv.append("-c")
+		argv.append(self.my_config_file)
+		main()
+		with open(self.my_config_file) as rawfile:
+			actual_xml_content = rawfile.readlines()
+		self.assertEqual(self.expected_xml_content, actual_xml_content)
+		argv.pop()
+		argv.pop()
+
 	def test_run_game_since_cmd_line_with_valid_config_file(self):
 		proc = Popen(
 			[
@@ -109,11 +119,18 @@ class TestPACSudokuScript(unittest.TestCase):
 			shell=True
 		)
 		(actual_output, actual_err) = proc.communicate()
-		with open(self.my_config_file) as rawfile:
-			actual_xml_content = rawfile.readlines()
-		self.assertEqual(self.expected_xml_content, actual_xml_content)
 		self.assertEqual(None, actual_err)
 		self.assertEqual(self.default_output, actual_output)
+
+	def test_main_with_invalid_config_file(self):
+		argv.append("-c")
+		argv.append(self.invalid_config_file)
+		main()
+		with open(self.invalid_config_file) as rawfile:
+			actual_xml_content = rawfile.readlines()
+		self.assertEqual([], actual_xml_content)
+		argv.pop()
+		argv.pop()
 
 	def test_run_game_since_cmd_line_with_invalid_config_file(self):
 		proc = Popen(
@@ -127,12 +144,19 @@ class TestPACSudokuScript(unittest.TestCase):
 			shell=True
 		)
 		(actual_output, actual_err) = proc.communicate()
-		with open(self.invalid_config_file) as rawfile:
-			actual_xml_content = rawfile.readlines()
-		self.assertEqual([], actual_xml_content)
 		self.assertEqual(None, actual_err)
 		self.assertEqual(self.default_output, actual_output)
 		
+	def test_main_with_empty_config_file(self):
+		argv.append("-c")
+		argv.append(self.empty_config_file)
+		main()
+		with open(self.empty_config_file) as rawfile:
+			actual_xml_content = rawfile.readlines()
+		self.assertEqual([], actual_xml_content)
+		argv.pop()
+		argv.pop()
+
 	def test_run_game_since_cmd_line_with_empty_config_file(self):
 		proc = Popen(
 			[
@@ -145,12 +169,15 @@ class TestPACSudokuScript(unittest.TestCase):
 			shell=True
 		)
 		(actual_output, actual_err) = proc.communicate()
-		with open(self.empty_config_file) as rawfile:
-			actual_xml_content = rawfile.readlines()
-		self.assertEqual([], actual_xml_content)
 		self.assertEqual(None, actual_err)
 		self.assertEqual(self.default_output, actual_output)
 		
+	def test_main_with_no_arguments(self):
+		main()
+		with open(self.default_config_file) as rawfile:
+			actual_xml_content = rawfile.readlines()
+		self.assertEqual([], actual_xml_content)
+	
 	def test_run_game_since_cmd_line_with_no_arguments(self):
 		proc = Popen(
 			[
@@ -161,12 +188,17 @@ class TestPACSudokuScript(unittest.TestCase):
 			shell=True
 		)
 		(actual_output, actual_err) = proc.communicate()
-		with open(self.default_config_file) as rawfile:
-			actual_xml_content = rawfile.readlines()
-		self.assertEqual([], actual_xml_content)
 		self.assertEqual(None, actual_err)
 		self.assertEqual(self.default_output, actual_output)
 		
+	def test_main_with_gui_argument(self):
+		argv.append("-g")
+		main()
+		with open(self.default_config_file) as rawfile:
+			actual_xml_content = rawfile.readlines()
+		self.assertEqual([], actual_xml_content)
+		argv.pop()
+	
 	def test_launch_game_with_argument_gui(self):
 		proc = Popen(
 			[

@@ -90,8 +90,7 @@ class Interface():
 		return False
 	
 	def update_config_difficulty_level(self, new_difficulty_level):
-		"""Returns True if config updated with new_difficulty_level.
-		"""
+		"""Returns True if config updated with new_difficulty_level."""
 		if self.config.validateInputType(
 			new_difficulty_level,
 			self.config.supported_difficultyLevels
@@ -108,6 +107,20 @@ class Interface():
 			return True
 		except IOError:
 			return False
+	
+	def config_changes_not_saved(self, config_file_handler):
+		"""Returns True if config settings differ from config_file_handler"""
+		try:
+			config_file_handler.reopen('r')
+			file_config = config_file_handler.read_config_file()
+		except AttributeError:
+			return True
+		return (
+			self.config.inputType != file_config.inputType or
+			self.config.outputType != file_config.outputType or
+			self.config.defaultAlgorithm != file_config.defaultAlgorithm or
+			self.config.difficultyLevel != file_config.difficultyLevel
+		)
 	
 	def load_sudoku_from_file(self, file):
 		"""Returns True if file saved to input_matrix as a valid Sudoku game.

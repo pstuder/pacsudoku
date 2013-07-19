@@ -1,3 +1,4 @@
+
 import time
 import unittest
 from sys import path
@@ -63,6 +64,73 @@ class Test_sudoku_interactive(unittest.TestCase):
                                         [0,5,0,6,0,3,0,7,0],
                                         [5,0,0,2,0,0,0,0,7],
                                         [1,0,4,0,3,0,0,0,0]]
+        self.matrix = [
+            [4, 1, 7, 0, 6, 9, 8, 2, 5],
+            [6, 3, 2, 1, 5, 8, 9, 4, 7],
+            [9, 5, 8, 7, 2, 4, 3, 1, 6],
+            [8, 2, 5, 4, 3, 7, 1, 6, 9],
+            [7, 9, 1, 5, 8, 6, 4, 3, 2],
+            [3, 4, 6, 9, 1, 2, 7, 5, 8],
+            [2, 8, 9, 6, 4, 3, 5, 7, 1],
+            [5, 7, 3, 2, 9, 1, 6, 8, 4],
+            [1, 6, 4, 8, 7, 5, 2, 9, 3]
+        ]
+        
+        self.txt_content_expected = ["Time:0.101974412949 \n",
+            "417069825\n",
+            "632158947\n",
+            "958724316\n",
+            "825437169\n",
+            "791586432\n",
+            "346912758\n",
+            "289643571\n",
+             "573291684\n",
+             "164875293\n"
+             ]
+        self.one_per_solved_matrix= [[4, 1, 7, 3, 6, 9, 8, 2, 5], 
+                                     [6, 3, 2, 1, 5, 8, 9, 4, 7], 
+                                     [9, 5, 8, 7, 2, 4, 3, 1, 6], 
+                                     [8, 2, 5, 4, 3, 7, 1, 6, 9],
+                                     [7, 9, 0, 5, 8, 6, 4, 3, 2], 
+                                     [3, 4, 6, 9, 1, 2, 7, 5, 8], 
+                                     [2, 8, 9, 6, 4, 3, 5, 7, 1], 
+                                     [5, 7, 3, 2, 9, 1, 6, 8, 4], 
+                                     [1, 6, 4, 8, 7, 5, 2, 9, 3]]
+        
+        self.txt_expected_in_pos_1="{1: (0.2999837269821924, '417369825632158947958724316825437169790586432346912758289643571573291684164875293', 'one per solve'), 2: (0.0, '', 'Name2'), 3: (0.0, '', 'Name3'), 4: (0.0, '', 'Name4'), 5: (0.0, '', 'Name5')}"
+        self.txt_expected_in_pos_2="{1: (0.0, '', 'name1'), 2: (0.3114713601869712, '417369825632158947958724316825437169790586432346912758289643571573291684164875293', 'one per solve'), 3: (0.0, '', 'Name3'), 4: (0.0, '', 'Name4'), 5: (0.0, '', 'Name5')}"
+        self.txt_expected_in_pos_3= "{1: (0.0, '', 'name1'), 2: (0.0, '', 'Name2'), 3: (0.4045029466036806, '417369825632158947958724316825437169790586432346912758289643571573291684164875293', 'one per solve'), 4: (0.0, '', 'Name4'), 5: (0.0, '', 'Name5')}"
+        self.txt_expected_in_pos_4="{1: (0.0, '', 'name1'), 2: (0.0, '', 'Name2'), 3: (0.0, '', 'Name3'), 4: (0.29502038666938724, '417369825632158947958724316825437169790586432346912758289643571573291684164875293', 'one per solve'), 5: (0.0, '', 'Name5')}"
+        self.txt_expected_in_pos_5="{1: (0.0, '', 'name1'), 2: (0.0, '', 'Name2'), 3: (0.0, '', 'Name3'), 4: (0.0, '', 'Name4'), 5: (0.3012296255531001, '417369825632158947958724316825437169790586432346912758289643571573291684164875293', 'one per solve')}"
+
+        
+
+        self.file_actual = "saved_game.sv"
+        self.file_expected = "saved_game_test.sv"
+
+        with open(self.file_expected, 'w') as rawfile:
+            for row in self.txt_expected_in_pos_3:
+                rawfile.write(row)
+        
+        file_game=open("../savegame/savegame.sv","w") 
+        file_game.write("")
+        file_game.close()
+        
+           
+    def tearDown(self):
+        try:
+            remove(self.file_expected)
+        except:
+            pass
+        try:
+            remove(self.file_actual)
+        except:
+            pass
+        try:
+            remove("../savegame/savegame.sv")
+        except:
+            pass
+       
     def test_SudokuInteractive_det_matrix_return_a_matrix(self):   
         self.assertTrue(is_equal_to(self.sudoku_interactive.matrix.first_matrix,self.start_matrix))
     
@@ -117,6 +185,421 @@ class Test_sudoku_interactive(unittest.TestCase):
         game_time=actual_sudoku.game_time(start)
         self.assertEqual(type(game_time),float)
     
+    def test_game_restart_is_current_time(self):
+        actual_sudoku=SudokuInteractive(self.duplicate_values_matrix)
+        self.assertEqual(type(actual_sudoku.game_restart()),float)
+    
+    def test_game_restart_change_the_game_to_initial_status(self):
+        actual_sudoku=SudokuInteractive(self.start_matrix)
+        actual_sudoku.solve_one()
+        actual_sudoku.game_restart()
+        self.assertEqual(self.start_matrix, actual_sudoku.matrix)
+            
+    def test_initial_status_matrix_is_not_the_actual_matrix_value_after_solve_one_cell(self):
+        actual_sudoku=SudokuInteractive(self.start_matrix)
+        actual_sudoku.solve_one()
+        self.assertNotEqual(self.start_matrix, actual_sudoku.matrix)
+
+    def test_save_game_save_a_matrix_in_pos_1(self):
+        actual_sudoku=SudokuInteractive(self.one_per_solved_matrix)
+        pos=1
+        if pos==1:
+            verif_file=self.txt_expected_in_pos_1
+        if pos==2:
+            verif_file=self.txt_expected_in_pos_2
+        if pos==3:
+            verif_file=self.txt_expected_in_pos_3
+        if pos==4:
+            verif_file=self.txt_expected_in_pos_4
+        if pos==5:
+            verif_file=self.txt_expected_in_pos_5
+        actual_sudoku.save_game(0.101974412949,pos,"one per solve")
+        current_game=1
+        game_name="one per solve"
+        with open("../savegame/savegame.sv") as in_file:
+            txt_content_actual =in_file.readline()
+        in_file.close()
+        recuperate_actual_position=recover_values_from_file(txt_content_actual)
+        actual_time,actual_matrix,actual_name=recuperate_actual_position[pos]
+        recuperate_expected_position=recover_values_from_file(verif_file)
+        expected_time,expected_matrix,expected_name=recuperate_expected_position[pos]
+        self.assertEqual(expected_matrix, actual_matrix)
+
+    def test_save_game_save_a_name_in_pos_1(self):
+        actual_sudoku=SudokuInteractive(self.one_per_solved_matrix)
+        pos=1
+        if pos==1:
+            verif_file=self.txt_expected_in_pos_1
+        if pos==2:
+            verif_file=self.txt_expected_in_pos_2
+        if pos==3:
+            verif_file=self.txt_expected_in_pos_3
+        if pos==4:
+            verif_file=self.txt_expected_in_pos_4
+        if pos==5:
+            verif_file=self.txt_expected_in_pos_5
+        actual_sudoku.save_game(0.101974412949,pos,"one per solve")
+        current_game=1
+        game_name="one per solve"
+        with open("../savegame/savegame.sv") as in_file:
+            txt_content_actual =in_file.readline()
+        in_file.close()
+        recuperate_actual_position=recover_values_from_file(txt_content_actual)
+        actual_time,actual_matrix,actual_name=recuperate_actual_position[pos]
+        recuperate_expected_position=recover_values_from_file(verif_file)
+        expected_time,expected_matrix,expected_name=recuperate_expected_position[pos]
+        self.assertEqual(expected_name, actual_name)
+        
+    def test_save_game_save_a_matrix_in_pos_2(self):
+        actual_sudoku=SudokuInteractive(self.one_per_solved_matrix)
+        pos=2
+        if pos==1:
+            verif_file=self.txt_expected_in_pos_1
+        if pos==2:
+            verif_file=self.txt_expected_in_pos_2
+        if pos==3:
+            verif_file=self.txt_expected_in_pos_3
+        if pos==4:
+            verif_file=self.txt_expected_in_pos_4
+        if pos==5:
+            verif_file=self.txt_expected_in_pos_5
+        actual_sudoku.save_game(0.101974412949,pos,"one per solve")
+        current_game=1
+        game_name="one per solve"
+        with open("../savegame/savegame.sv") as in_file:
+            txt_content_actual =in_file.readline()
+        in_file.close()
+        recuperate_actual_position=recover_values_from_file(txt_content_actual)
+        actual_time,actual_matrix,actual_name=recuperate_actual_position[pos]
+        recuperate_expected_position=recover_values_from_file(verif_file)
+        expected_time,expected_matrix,expected_name=recuperate_expected_position[pos]
+        self.assertEqual(expected_matrix, actual_matrix)
+        
+    def test_save_game_save_a_name_in_pos_2(self):
+        actual_sudoku=SudokuInteractive(self.one_per_solved_matrix)
+        pos=2
+        if pos==1:
+            verif_file=self.txt_expected_in_pos_1
+        if pos==2:
+            verif_file=self.txt_expected_in_pos_2
+        if pos==3:
+            verif_file=self.txt_expected_in_pos_3
+        if pos==4:
+            verif_file=self.txt_expected_in_pos_4
+        if pos==5:
+            verif_file=self.txt_expected_in_pos_5
+        actual_sudoku.save_game(0.101974412949,pos,"one per solve")
+        current_game=1
+        game_name="one per solve"
+        with open("../savegame/savegame.sv") as in_file:
+            txt_content_actual =in_file.readline()
+        in_file.close()
+        recuperate_actual_position=recover_values_from_file(txt_content_actual)
+        actual_time,actual_matrix,actual_name=recuperate_actual_position[pos]
+        recuperate_expected_position=recover_values_from_file(verif_file)
+        expected_time,expected_matrix,expected_name=recuperate_expected_position[pos]
+        self.assertEqual(expected_name, actual_name)
+        
+    def test_save_game_save_a_matrix_in_pos_3(self):
+        actual_sudoku=SudokuInteractive(self.one_per_solved_matrix)
+        pos=3
+        if pos==1:
+            verif_file=self.txt_expected_in_pos_1
+        if pos==2:
+            verif_file=self.txt_expected_in_pos_2
+        if pos==3:
+            verif_file=self.txt_expected_in_pos_3
+        if pos==4:
+            verif_file=self.txt_expected_in_pos_4
+        if pos==5:
+            verif_file=self.txt_expected_in_pos_5
+        actual_sudoku.save_game(0.101974412949,pos,"one per solve")
+        current_game=1
+        game_name="one per solve"
+        with open("../savegame/savegame.sv") as in_file:
+            txt_content_actual =in_file.readline()
+        in_file.close()
+        recuperate_actual_position=recover_values_from_file(txt_content_actual)
+        actual_time,actual_matrix,actual_name=recuperate_actual_position[pos]
+        recuperate_expected_position=recover_values_from_file(verif_file)
+        expected_time,expected_matrix,expected_name=recuperate_expected_position[pos]
+        self.assertEqual(expected_matrix, actual_matrix)
+
+    def test_save_game_save_a_name_in_pos_3(self):
+        actual_sudoku=SudokuInteractive(self.one_per_solved_matrix)
+        pos=3
+        if pos==1:
+            verif_file=self.txt_expected_in_pos_1
+        if pos==2:
+            verif_file=self.txt_expected_in_pos_2
+        if pos==3:
+            verif_file=self.txt_expected_in_pos_3
+        if pos==4:
+            verif_file=self.txt_expected_in_pos_4
+        if pos==5:
+            verif_file=self.txt_expected_in_pos_5
+        actual_sudoku.save_game(0.101974412949,pos,"one per solve")
+        current_game=1
+        game_name="one per solve"
+        with open("../savegame/savegame.sv") as in_file:
+            txt_content_actual =in_file.readline()
+        in_file.close()
+        recuperate_actual_position=recover_values_from_file(txt_content_actual)
+        actual_time,actual_matrix,actual_name=recuperate_actual_position[pos]
+        recuperate_expected_position=recover_values_from_file(verif_file)
+        expected_time,expected_matrix,expected_name=recuperate_expected_position[pos]
+        self.assertEqual(expected_name, actual_name)
+    
+    def test_save_game_save_a_matrix_in_pos_4(self):
+        actual_sudoku=SudokuInteractive(self.one_per_solved_matrix)
+        pos=4
+        if pos==1:
+            verif_file=self.txt_expected_in_pos_1
+        if pos==2:
+            verif_file=self.txt_expected_in_pos_2
+        if pos==3:
+            verif_file=self.txt_expected_in_pos_3
+        if pos==4:
+            verif_file=self.txt_expected_in_pos_4
+        if pos==5:
+            verif_file=self.txt_expected_in_pos_5
+        actual_sudoku.save_game(0.101974412949,pos,"one per solve")
+        current_game=1
+        game_name="one per solve"
+        with open("../savegame/savegame.sv") as in_file:
+            txt_content_actual =in_file.readline()
+        in_file.close()
+        recuperate_actual_position=recover_values_from_file(txt_content_actual)
+        actual_time,actual_matrix,actual_name=recuperate_actual_position[pos]
+        recuperate_expected_position=recover_values_from_file(verif_file)
+        expected_time,expected_matrix,expected_name=recuperate_expected_position[pos]
+        self.assertEqual(expected_matrix, actual_matrix)
+    
+    def test_save_game_save_a_name_in_pos_4(self):
+        actual_sudoku=SudokuInteractive(self.one_per_solved_matrix)
+        pos=4
+        if pos==1:
+            verif_file=self.txt_expected_in_pos_1
+        if pos==2:
+            verif_file=self.txt_expected_in_pos_2
+        if pos==3:
+            verif_file=self.txt_expected_in_pos_3
+        if pos==4:
+            verif_file=self.txt_expected_in_pos_4
+        if pos==5:
+            verif_file=self.txt_expected_in_pos_5
+        actual_sudoku.save_game(0.101974412949,pos,"one per solve")
+        current_game=1
+        game_name="one per solve"
+        with open("../savegame/savegame.sv") as in_file:
+            txt_content_actual =in_file.readline()
+        in_file.close()
+        recuperate_actual_position=recover_values_from_file(txt_content_actual)
+        actual_time,actual_matrix,actual_name=recuperate_actual_position[pos]
+        recuperate_expected_position=recover_values_from_file(verif_file)
+        expected_time,expected_matrix,expected_name=recuperate_expected_position[pos]
+        self.assertEqual(expected_name, actual_name)
+    
+    def test_save_game_save_a_matrix_in_pos_5(self):
+        actual_sudoku=SudokuInteractive(self.one_per_solved_matrix)
+        pos=5
+        if pos==1:
+            verif_file=self.txt_expected_in_pos_1
+        if pos==2:
+            verif_file=self.txt_expected_in_pos_2
+        if pos==3:
+            verif_file=self.txt_expected_in_pos_3
+        if pos==4:
+            verif_file=self.txt_expected_in_pos_4
+        if pos==5:
+            verif_file=self.txt_expected_in_pos_5
+        actual_sudoku.save_game(0.101974412949,pos,"one per solve")
+        current_game=1
+        game_name="one per solve"
+        with open("../savegame/savegame.sv") as in_file:
+            txt_content_actual =in_file.readline()
+        in_file.close()
+        recuperate_actual_position=recover_values_from_file(txt_content_actual)
+        actual_time,actual_matrix,actual_name=recuperate_actual_position[pos]
+        recuperate_expected_position=recover_values_from_file(verif_file)
+        expected_time,expected_matrix,expected_name=recuperate_expected_position[pos]        
+        self.assertEqual(expected_matrix, actual_matrix)
+    
+    def test_save_game_save_a_name_in_pos_5(self):
+        actual_sudoku=SudokuInteractive(self.one_per_solved_matrix)
+        pos=5
+        if pos==1:
+            verif_file=self.txt_expected_in_pos_1
+        if pos==2:
+            verif_file=self.txt_expected_in_pos_2
+        if pos==3:
+            verif_file=self.txt_expected_in_pos_3
+        if pos==4:
+            verif_file=self.txt_expected_in_pos_4
+        if pos==5:
+            verif_file=self.txt_expected_in_pos_5
+        actual_sudoku.save_game(0.101974412949,pos,"one per solve")
+        current_game=1
+        game_name="one per solve"
+        with open("../savegame/savegame.sv") as in_file:
+            txt_content_actual =in_file.readline()
+        in_file.close()
+        recuperate_actual_position=recover_values_from_file(txt_content_actual)
+        actual_time,actual_matrix,actual_name=recuperate_actual_position[pos]
+        recuperate_expected_position=recover_values_from_file(verif_file)
+        expected_time,expected_matrix,expected_name=recuperate_expected_position[pos]
+        self.assertEqual(expected_name, actual_name)
+
+    def test_that_load_game_from_memory_position_1_restore_a_matrix_stored_in_pos_1(self):
+        actual_sudoku=SudokuInteractive(self.one_per_solved_matrix)
+        pos=1
+        if pos==1:
+            verif_file=self.txt_expected_in_pos_1
+        if pos==2:
+            verif_file=self.txt_expected_in_pos_2
+        if pos==3:
+            verif_file=self.txt_expected_in_pos_3
+        if pos==4:
+            verif_file=self.txt_expected_in_pos_4
+        if pos==5:
+            verif_file=self.txt_expected_in_pos_5
+        actual_sudoku.save_game(0.101974412949,pos,"one per solve")
+        actual_time,actual_matrix=actual_sudoku.load_game(pos)
+        recuperate_position=recover_values_from_file(verif_file)
+        expected_time,expected_matrix,expected_name=recuperate_position[pos]
+        self.assertEqual(convert_to_matrix(expected_matrix), actual_matrix)
+
+    def test_that_load_game_from_memory_position_2_restore_a_matrix_stored_in_pos_2(self):
+        actual_sudoku=SudokuInteractive(self.one_per_solved_matrix)
+        pos=2
+        if pos==1:
+            verif_file=self.txt_expected_in_pos_1
+        if pos==2:
+            verif_file=self.txt_expected_in_pos_2
+        if pos==3:
+            verif_file=self.txt_expected_in_pos_3
+        if pos==4:
+            verif_file=self.txt_expected_in_pos_4
+        if pos==5:
+            verif_file=self.txt_expected_in_pos_5
+        actual_sudoku.save_game(0.101974412949,pos,"one per solve")
+        actual_time,actual_matrix=actual_sudoku.load_game(pos)
+        recuperate_position=recover_values_from_file(verif_file)
+        expected_time,expected_matrix,expected_name=recuperate_position[pos]
+        self.assertEqual(convert_to_matrix(expected_matrix), actual_matrix)
+
+    def test_that_load_game_from_memory_position_3_restore_a_matrix_stored_in_pos_3(self):
+        actual_sudoku=SudokuInteractive(self.one_per_solved_matrix)
+        pos=3
+        if pos==1:
+            verif_file=self.txt_expected_in_pos_1
+        if pos==2:
+            verif_file=self.txt_expected_in_pos_2
+        if pos==3:
+            verif_file=self.txt_expected_in_pos_3
+        if pos==4:
+            verif_file=self.txt_expected_in_pos_4
+        if pos==5:
+            verif_file=self.txt_expected_in_pos_5
+        actual_sudoku.save_game(0.101974412949,pos,"one per solve")
+        actual_time,actual_matrix=actual_sudoku.load_game(pos)
+        recuperate_position=recover_values_from_file(verif_file)
+        expected_time,expected_matrix,expected_name=recuperate_position[pos]
+        self.assertEqual(convert_to_matrix(expected_matrix), actual_matrix)
+
+    def test_that_load_game_from_memory_position_4_restore_a_matrix_stored_in_pos_4(self):
+        actual_sudoku=SudokuInteractive(self.one_per_solved_matrix)
+        pos=4
+        if pos==1:
+            verif_file=self.txt_expected_in_pos_1
+        if pos==2:
+            verif_file=self.txt_expected_in_pos_2
+        if pos==3:
+            verif_file=self.txt_expected_in_pos_3
+        if pos==4:
+            verif_file=self.txt_expected_in_pos_4
+        if pos==5:
+            verif_file=self.txt_expected_in_pos_5
+        actual_sudoku.save_game(0.101974412949,pos,"one per solve")
+        actual_time,actual_matrix=actual_sudoku.load_game(pos)
+        recuperate_position=recover_values_from_file(verif_file)
+        expected_time,expected_matrix,expected_name=recuperate_position[pos]
+        self.assertEqual(convert_to_matrix(expected_matrix), actual_matrix)
+
+    def test_that_load_game_from_memory_position_5_restore_a_matrix_stored_in_pos_5(self):
+        actual_sudoku=SudokuInteractive(self.one_per_solved_matrix)
+        pos=5
+        if pos==1:
+            verif_file=self.txt_expected_in_pos_1
+        if pos==2:
+            verif_file=self.txt_expected_in_pos_2
+        if pos==3:
+            verif_file=self.txt_expected_in_pos_3
+        if pos==4:
+            verif_file=self.txt_expected_in_pos_4
+        if pos==5:
+            verif_file=self.txt_expected_in_pos_5
+        actual_sudoku.save_game(0.101974412949,pos,"one per solve")
+        actual_time,actual_matrix=actual_sudoku.load_game(pos)
+        recuperate_position=recover_values_from_file(verif_file)
+        expected_time,expected_matrix,expected_name=recuperate_position[pos]
+        self.assertEqual(convert_to_matrix(expected_matrix), actual_matrix)
+
+    def test_that_load_game_empty(self):
+        actual_sudoku=SudokuInteractive([])
+        pos=3
+        if pos==1:
+            verif_file=self.txt_expected_in_pos_1
+        if pos==2:
+            verif_file=self.txt_expected_in_pos_2
+        if pos==3:
+            verif_file=self.txt_expected_in_pos_3
+        if pos==4:
+            verif_file=self.txt_expected_in_pos_4
+        if pos==5:
+            verif_file=self.txt_expected_in_pos_5
+        actual_sudoku.save_game(0,pos,"")
+        actual_time,actual_matrix=actual_sudoku.load_game(pos)
+        recuperate_position=recover_values_from_file(verif_file)
+        expected_time,expected_matrix,expected_name=recuperate_position[pos]
+        self.assertEqual([], actual_matrix)
+
+def convert_to_matrix(matrix):
+    if len(matrix)>3:
+        output_mat=[]
+        for i in range(0,len(matrix)-8):
+            row_mat=[]
+            for j in range(i,i+9):
+                row_mat.append(int(matrix[j]))
+            if (i)%9==0 or i==0:
+                output_mat.append(row_mat)
+        return output_mat
+          
+def recover_values_from_file(file_imported):
+    memory={}
+    if file_imported !=[]:
+        memory1=file_imported
+        var=memory1.split('{', 1 )[1]
+        for i in range(1,6):
+            if i!=5:
+                pos=var.split('),', 1 )[0]
+                rest_of_memory_positions=var.split('),', 1 )[1]
+            else:        
+                pos=var.split(')}', 1 )[0]
+            remove_open_parentesis=pos.split('(', 1 )[1]
+            remove_open_parentesis=remove_open_parentesis.split(')', 1 )[0]
+            actual_time=remove_open_parentesis.split(',', 1 )[0]
+            mat_name=remove_open_parentesis.split(',', 1 )[1].split(',', 1 )
+            matrix=mat_name[0]
+            matrix=matrix[2:]
+            matrix=matrix[:-1]
+            name=mat_name[1]
+            name=name[2:]
+            name=name[:-1]
+            var=rest_of_memory_positions
+            memory[i]=(actual_time,matrix,name)
+        return memory
+                    
     
         
 def is_equal_to(mat1,mat2):
@@ -139,4 +622,4 @@ def zero_count(table):
     return zero_count    
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
-    unittest.main()
+    unittest.main()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            

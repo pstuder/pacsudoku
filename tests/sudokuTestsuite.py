@@ -19,6 +19,7 @@ from testConfig import test_configfile
 from testvalidmatrix import TestLine
 from test_main import TestInterface
 from test_pacsudoku import TestPACSudokuScript
+from test_sudokuinteractive import Test_sudoku_interactive
 
 if __name__=="__main__":
     suite=unittest.TestSuite()
@@ -46,6 +47,9 @@ if __name__=="__main__":
      
     # Module pacsudoku
     suite.addTest(unittest.makeSuite(TestPACSudokuScript))
+    
+    # Module sudoku_interactive
+    suite.addTest(unittest.makeSuite(Test_sudoku_interactive))
 
     unittest.TextTestRunner(verbosity=2).run(suite)
     cov.stop()

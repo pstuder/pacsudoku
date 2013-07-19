@@ -1,3 +1,4 @@
+from datetime import timedelta
 from copy import deepcopy
 import os
 import random
@@ -17,6 +18,19 @@ class SudokuInteractive():
         self.matrix=MatrixHandler(deepcopy(matrix))
         self.solved=Norvig(self.matrix).solve()
         self.copy=deepcopy(matrix)
+        self.memory={}
+        input_file = "../savegame/savegame.sv"
+        
+        input_file = open(input_file, "r")
+        file_imported = input_file.readlines()
+        input_file.close()
+        if file_imported !=[]:
+            self.memory=self.recover_values_from_file()
+        else: 
+            self.memory={1:(0.0,"","name1"),2:(0.0,"","Name2"),3:(0.0,"","Name3"),4:(0.0,"","Name4"),5:(0.0,"","Name5")}
+        
+        
+
     
     def is_equal_to(self,mat2):
         """ Compare two matrix 
@@ -157,4 +171,79 @@ class SudokuInteractive():
         """ Return the completed game time if the game is solved. """
         if self.sudoku_is_solved()==True:
             return time.clock()-start_time
-        
+    
+    def game_restart(self):
+        """ Return the current time. """
+        self.matrix=self.copy
+        return time.clock()
+    
+    def save_game(self,game_start_time,memory_position,game_name):
+        """Save interactive game in specific memory position 
+        also allows to the user to set a name to the game.  
+        """
+        self.memory=self.recover_values_from_file()
+        memory=self.recover_values_from_file()
+        matrix_for_save=self.matrix.first_matrix
+        input_file_name = "../savegame/savegame.sv"
+        input_file = open(input_file_name, "w")
+        actual_time=time.clock()-game_start_time
+        for i in range(1,6):
+            if memory_position==i:
+                line = ''
+                for row in matrix_for_save:
+                    for digit in row:
+                        line = line + str(digit)
+                memory[i]=(actual_time, line, game_name)
+        input_file.write(str(memory))
+        input_file.close()
+   
+    def recover_values_from_file(self):
+        """Recover values from the stored memory structure. """
+        input_file = "../savegame/savegame.sv"
+        input_file = open(input_file, "r")
+        file_imported = input_file.readlines()
+        input_file.close()
+        if file_imported !=[]:
+            self.memory1=file_imported[0]
+            var=self.memory1.split('{', 1 )[1]
+            for i in range(1,6):
+                if i!=5:
+                    pos=var.split('),', 1 )[0]
+                    rest_of_memory_positions=var.split('),', 1 )[1]
+                else:        
+                    pos=var.split(')}', 1 )[0]
+                remove_open_parentesis=pos.split('(', 1 )[1]
+                remove_open_parentesis=remove_open_parentesis.split(
+                                                                    ')', 
+                                                                    1)[0]
+                actual_time=remove_open_parentesis.split(',', 1 )[0]
+                actual_time=actual_time[2:]
+                actual_time=actual_time[:-1]
+                mat_name=remove_open_parentesis.split(',', 1)[1].split(',', 1)
+                matrix=mat_name[0]
+                matrix=matrix[2:]
+                matrix=matrix[:-1]
+                name=mat_name[1]
+                name=name[2:]
+                name=name[:-1]
+                var=rest_of_memory_positions
+                self.memory[i]=(actual_time,matrix,name)
+        return self.memory
+
+    def load_game(self,memory_position):
+        """Load one game from the stored position. """
+        self.memory=self.recover_values_from_file()
+        actual_time,matrix,game_name= self.memory[memory_position]
+        if len(matrix)>3:
+            output_mat=[]
+            for i in range(0,len(matrix)-8):
+                row_mat=[]
+                for j in range(i,i+9):
+                    row_mat.append(int(matrix[j]))
+                if (i)%9==0 or i==0:
+                    output_mat.append(row_mat)
+            del(self.matrix) 
+            self.matrix=MatrixHandler(output_mat)
+            return float(actual_time),output_mat
+        else:
+            return 0.0,[]

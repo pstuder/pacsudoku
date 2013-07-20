@@ -192,3 +192,17 @@ class Interface():
 			self.input_matrix.generator(self.config.difficultyLevel)
 		return True
 
+	def printmatrix(self):
+				""" Print the matrix in PRD format """
+				chain=""
+				if len(self.input_matrix.first_matrix)>0:
+					for i in range(len(self.input_matrix.first_matrix)):    
+						for j in range(len(self.input_matrix.first_matrix)):        
+							if j%3==0 and j!=0:
+								chain=chain + "| "
+							chain=chain + str(self.input_matrix.first_matrix[i][j]) +"   "
+						if (i+1)%3==0 and i!=0 and (i+1)!=9:
+							chain=chain + "\n-------------------------------------"
+						chain=chain + "\n"
+				print chain
+				return chain  

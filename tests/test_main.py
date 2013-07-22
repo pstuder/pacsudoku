@@ -221,8 +221,29 @@ class TestInterface(unittest.TestCase):
 
 	def test_save_config_to_file_returns_true_if_valid(self):
 		interface = Interface(self.file_handler_xml1)
-		self.file_handler_xml1.reopen('w')
 		self.assertTrue(interface.save_config_to_file(self.file_handler_xml1))
+
+	def test_config_changes_not_saved_returns_true_if_config_changed(self):
+		interface = Interface(self.file_handler_xml2)
+		interface.config.defaultAlgorithm = "Norvig"
+		self.assertTrue(
+			interface.config_changes_not_saved(self.file_handler_xml2)
+		)
+
+	def test_config_changes_not_saved_returns_false_if_config_same(self):
+		interface = Interface(self.file_handler_xml1)
+		self.assertFalse(
+			interface.config_changes_not_saved(self.file_handler_xml1)
+		)
+
+	def test_config_changes_not_saved_returns_true_if_config_empty(self):
+		empty_file = FileHandlerXML("config.xml", 'w')
+		interface = Interface(empty_file)
+		self.assertTrue(
+			interface.config_changes_not_saved(empty_file)
+		)
+		empty_file.file.close()
+		remove("config.xml")
 
 	def test_load_sudoku_returns_true_for_valid_matrix_in_csv(self):
 		interface = Interface(self.file_handler_xml1)
@@ -262,14 +283,14 @@ class TestInterface(unittest.TestCase):
 		interface.load_sudoku_from_file(self.sudoku_import_txt)
 		self.assertTrue(interface.solve_sudoku())
 
-	def test_generate_sudoku_returns_false_if_unsupported_algorithm(self):
-		interface = Interface(self.file_handler_xml2)
-		interface.config.defaultAlgorithm = "MyAlgorithm"
-		self.assertFalse(interface.generate_sudoku())
-
 	def test_generate_sudoku_returns_true_if_matrix_generated(self):
 		interface = Interface(self.file_handler_xml1)
 		self.assertTrue(interface.generate_sudoku())
+
+	def test_generate_sudoku_returns_false_if_invalid_algorithm(self):
+		interface = Interface(self.file_handler_xml1)
+		interface.config.defaultAlgorithm = "MyAlgorithm"
+		self.assertFalse(interface.generate_sudoku())
 
 	def test_export_sudoku_returns_true_if_valid_file_path(self):
 		interface = Interface(self.file_handler_xml1)
@@ -287,6 +308,3 @@ class TestInterface(unittest.TestCase):
 		interface = Interface(self.file_handler_xml2)
 		self.assertFalse(interface.export_sudoku_to_file(self.sudoku_export))
 
-
-if __name__ == "__main__":
-	unittest.main()

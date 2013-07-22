@@ -8,12 +8,6 @@ from pacsudoku import SudokuArgumentParser, main
 
 class TestPACSudokuScript(unittest.TestCase):
 	def setUp(self):
-		self.default_output = "" +\
-			"\r\n\r\nStarting the console user interface ...\r\n" +\
-		""
-		self.expected_gui_output = "" +\
-			"\r\n\r\nStarting the graphical user interface ...\r\n" +\
-		""
 		self.expected_help_output = "" +\
 			"usage: pacsudoku [-h] [-c XML] [-g]\r\n" +\
 			"\r\n" +\
@@ -73,11 +67,7 @@ class TestPACSudokuScript(unittest.TestCase):
  			remove(self.empty_config_file)
 		except:
 			pass
- 		try:
- 			remove(self.default_config_file)
-		except:
-			pass
-
+	
 	def test_sudoku_argument_parser_class_default(self):
 		parser = SudokuArgumentParser()
 		actual_arguments = parser.parse_args()
@@ -100,119 +90,55 @@ class TestPACSudokuScript(unittest.TestCase):
 	def test_main_with_valid_config_file(self):
 		argv.append("-c")
 		argv.append(self.my_config_file)
-		main()
+		pacsudoku = main()
 		with open(self.my_config_file) as rawfile:
 			actual_xml_content = rawfile.readlines()
 		self.assertEqual(self.expected_xml_content, actual_xml_content)
 		argv.pop()
 		argv.pop()
-
-	def test_run_game_since_cmd_line_with_valid_config_file(self):
-		proc = Popen(
-			[
-				"python",
-				"../source/pacsudoku.py",
-				"-c",
-				self.my_config_file
-			],
-			stdout=PIPE,
-			shell=True
-		)
-		(actual_output, actual_err) = proc.communicate()
-		self.assertEqual(None, actual_err)
-		self.assertEqual(self.default_output, actual_output)
+		pacsudoku.config_file_handler.file.close()
 
 	def test_main_with_invalid_config_file(self):
 		argv.append("-c")
 		argv.append(self.invalid_config_file)
-		main()
+		pacsudoku = main()
 		with open(self.invalid_config_file) as rawfile:
 			actual_xml_content = rawfile.readlines()
 		self.assertEqual([], actual_xml_content)
 		argv.pop()
 		argv.pop()
+		pacsudoku.config_file_handler.file.close()
 
-	def test_run_game_since_cmd_line_with_invalid_config_file(self):
-		proc = Popen(
-			[
-				"python",
-				"../source/pacsudoku.py",
-				"-c",
-				self.invalid_config_file
-			],
-			stdout=PIPE,
-			shell=True
-		)
-		(actual_output, actual_err) = proc.communicate()
-		self.assertEqual(None, actual_err)
-		self.assertEqual(self.default_output, actual_output)
-		
 	def test_main_with_empty_config_file(self):
 		argv.append("-c")
 		argv.append(self.empty_config_file)
-		main()
+		pacsudoku = main()
 		with open(self.empty_config_file) as rawfile:
 			actual_xml_content = rawfile.readlines()
 		self.assertEqual([], actual_xml_content)
 		argv.pop()
 		argv.pop()
+		pacsudoku.config_file_handler.file.close()
 
-	def test_run_game_since_cmd_line_with_empty_config_file(self):
-		proc = Popen(
-			[
-				"python",
-				"../source/pacsudoku.py",
-				"-c",
-				self.empty_config_file
-			],
-			stdout=PIPE,
-			shell=True
-		)
-		(actual_output, actual_err) = proc.communicate()
-		self.assertEqual(None, actual_err)
-		self.assertEqual(self.default_output, actual_output)
-		
 	def test_main_with_no_arguments(self):
-		main()
+		pacsudoku = main()
 		with open(self.default_config_file) as rawfile:
 			actual_xml_content = rawfile.readlines()
 		self.assertEqual([], actual_xml_content)
+		pacsudoku.config_file_handler.file.close()
+		remove(self.default_config_file)
+
 	
-	def test_run_game_since_cmd_line_with_no_arguments(self):
-		proc = Popen(
-			[
-				"python",
-				"../source/pacsudoku.py"
-			],
-			stdout=PIPE,
-			shell=True
-		)
-		(actual_output, actual_err) = proc.communicate()
-		self.assertEqual(None, actual_err)
-		self.assertEqual(self.default_output, actual_output)
-		
 	def test_main_with_gui_argument(self):
 		argv.append("-g")
-		main()
+		pacsudoku = main()
 		with open(self.default_config_file) as rawfile:
 			actual_xml_content = rawfile.readlines()
 		self.assertEqual([], actual_xml_content)
 		argv.pop()
+		pacsudoku.config_file.file.close()
+		remove(self.default_config_file)
 	
-	def test_launch_game_with_argument_gui(self):
-		proc = Popen(
-			[
-				"python",
-				"../source/pacsudoku.py",
-				"-g"
-			],
-			stdout=PIPE,
-			shell=True
-		)
-		(actual_output, actual_err) = proc.communicate()
-		self.assertEqual(None, actual_err)
-		self.assertEqual(self.expected_gui_output, actual_output)
-		
 	def test_show_help(self):
 		proc = Popen(
 			[

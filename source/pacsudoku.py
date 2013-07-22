@@ -19,12 +19,10 @@ def main():
 	else:
 		config_file_handler = FileHandlerXML(config_file_name, 'w')
 	if args.gui:
-		pacsudoku = SudokuGraphicalUserInterface(config_file_handler)
+		return SudokuGraphicalUserInterface(config_file_handler)
 	else:
-		pacsudoku = SudokuConsoleUserInterface(config_file_handler)	
+		return SudokuConsoleUserInterface(config_file_handler)	
 	
-	# Run the game!
-	pacsudoku.run()
 
 class SudokuArgumentParser(ArgumentParser):
 	"""Argument Parser for the PAC Sudoku game."""
@@ -88,4 +86,6 @@ class SudokuArgumentParser(ArgumentParser):
 
 
 if __name__ == "__main__":
-	main()
+	pacsudoku = main()
+	pacsudoku.run()
+

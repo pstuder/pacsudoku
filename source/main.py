@@ -173,23 +173,26 @@ class Interface():
 	def generate_sudoku(self):
 		"""Returns True if successfully generated valid Sudoku game.
 
-		Generator will use config.difficultyLevel to create a matrix
-		and stores it to input_matrix.first_matrix.
+		Generator will use Norvig algorithm to create a matrix and
+		will store it to input_matrix.first_matrix.
 		
-		If config, by any reason, is set with an unsupported algorithm,
-		return False.
-
+		Returns False if a failure has been detected in the process
+		of generating a sudoku game.
+		
 		"""
 		self._reset_input_matrix()
 		self.input_matrix = validmatrix.MatrixHandler([])
-		self.input_matrix.generator(self.config.difficultyLevel)
+		temp_default_algorithm = self.config.defaultAlgorithm
+		self.config.defaultAlgorithm = "Norvig"
 		try:
+			while True:
+				self.input_matrix.generator(self.config.difficultyLevel)
+				self._set_algorithm()
+				if self.algorithm.solve() is not None: break
+			self.config.defaultAlgorithm = temp_default_algorithm
 			self._set_algorithm()
-		except TypeError:
+		except:
 			return False
-		while self.algorithm.solve() is None:
-			self._set_algorithm()
-			self.input_matrix.generator(self.config.difficultyLevel)
 		return True
 
 	def printmatrix(self):

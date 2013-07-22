@@ -1,7 +1,6 @@
 import unittest
-
-from sys import path
 from coverage import coverage
+from sys import path
 
 path.append("../source")
 cov=coverage(omit=["test*.py"])
@@ -11,15 +10,17 @@ from test_inout import TestFileHandler
 from test_inout import TestFileHandlerCSV
 from test_inout import TestFileHandlerTXT
 from test_inout import TestFileHandlerXML
+from test_main import TestInterface
+from test_pacsudoku import TestPACSudokuScript
 from test_solver import TestAlgorithm
 from test_solver import TestNorvigAlgorithm
 from test_solver import TestXAlgorithm
 from test_solver import TestBacktrackingAlgorithm
+from test_sudokuinteractive import Test_sudoku_interactive
+from test_sudokugui import TestSudokuGUISettings
+from test_sudokugui import TestSudokuGUI
 from testConfig import test_configfile
 from testvalidmatrix import TestLine
-from test_main import TestInterface
-from test_pacsudoku import TestPACSudokuScript
-from test_sudokuinteractive import Test_sudoku_interactive
 
 if __name__=="__main__":
     suite=unittest.TestSuite()
@@ -50,6 +51,10 @@ if __name__=="__main__":
     
     # Module sudoku_interactive
     suite.addTest(unittest.makeSuite(Test_sudoku_interactive))
+
+    # Module sudokugui
+    suite.addTest(unittest.makeSuite(TestSudokuGUISettings))
+    suite.addTest(unittest.makeSuite(TestSudokuGUI))
 
     unittest.TextTestRunner(verbosity=2).run(suite)
     cov.stop()

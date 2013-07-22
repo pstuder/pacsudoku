@@ -1,5 +1,5 @@
 import random 
-
+from copy import deepcopy
 
 class MatrixHandler:
 	
@@ -327,15 +327,34 @@ class MatrixHandler:
 		counter=0
 		rows=len(table)
 		columns=len(table[0])
+		init_table=deepcopy(table)
 		while (zero_quantity>inserted_zeros and counter<10000):
 			counter+=1
 			row=random.randint(0,rows-1)
 			column=random.randint(0,columns-1)
 			if table[row][column]!=0:
 				if len(self.return_total_posible_values(table,row,column))==1:
+					aux=table[row][column]
 					table[row][column]=0
-					inserted_zeros=self.zero_count(table)
-
+ 					if self.is_valid(table, inserted_zeros)!=True:
+ 						table=deepcopy(table)
+ 					inserted_zeros=self.zero_count(table)
+	
+	def is_valid(self,sudoku,zeros):
+		sudoku_copy=deepcopy(sudoku)
+		count= self.zero_count(sudoku_copy)
+		counter=0
+		while self.zero_count(sudoku_copy)!=0 and counter<=zeros:
+			counter+=1
+			self.fill_inmediate_values(sudoku_copy)
+			for i in range(2,7):    
+				self.fillCellWithNPosible_values(sudoku_copy,i)
+				
+		if self.zero_count(sudoku_copy)==0:
+			return True
+		else:
+			return False
+		
 	def generator(self,level):    
 		"""Generate a new SUDOKU game. """
 		sudoku = self.create_blank_table()

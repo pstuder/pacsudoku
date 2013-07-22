@@ -9,11 +9,14 @@ from validmatrix import MatrixHandler
 from sudokuinteractive import SudokuInteractive
 
 
+from inout import FileHandlerXML, FileHandlerTXT, FileHandlerCSV
+
 class SudokuConsoleUserInterface(Interface):
 	"""Console class for the PAC Sudoku game."""
 	def __init__(self,config_file_handler):
 		Interface.__init__(self, config_file_handler)
 		self.config_file_handler = config_file_handler
+		self.time=0
 		
 		
 	def blankmatrix(self):
@@ -59,7 +62,9 @@ class SudokuConsoleUserInterface(Interface):
 		if choicesolve == '1':
 			self.gamesolved()
 		elif choicesolve == '2':
-			self.interactivegame()
+			self.interactive = SudokuInteractive(self.input_matrix.first_matrix)
+			self.time = self.interactive.game_start()
+			self.interactivegame("")
 		else:
 			self.sudokumenu()
 		
@@ -71,7 +76,7 @@ class SudokuConsoleUserInterface(Interface):
 			print( "           SUDOKU GAME           ")
 			print('**************************************')
 			print(' ')
-			self.output_matrix.printmatrix()
+			self.interactive.solved.printmatrix()
 			print(' ')
 			print'Game message:     '
 			print'Game solved by ', self.config.defaultAlgorithm, ' algorithm.'
@@ -93,10 +98,13 @@ class SudokuConsoleUserInterface(Interface):
 	
 	def generategame(self):
 		if self.generate_sudoku() == True:
+			self.interactive = SudokuInteractive(self.input_matrix.first_matrix)
 			self.solvegame()
 		else:
 			print("Sudoku unsolvable, generate another.")
 			self.sudokumenu()
+	
+	
 	
 	def changesettings(self):
 		print('\n**************************************')
@@ -190,45 +198,60 @@ class SudokuConsoleUserInterface(Interface):
 			print('Settings were not saved correctly, please try again ')
 		self.sudokumenu()
 	
-	def interactivegame(self):
-		self.interactive = SudokuInteractive(self.input_matrix.first_matrix)
-		time = self.interactive.game_start()
-		start_time = datetime(1900,1,1,0,0,int(time))
+	def interactivegame(self,input_mesage):
+		dif_time=time.clock()-self.time
+		if (dif_time//60)>=1:
+			s=dif_time-60*(dif_time//60)
+		else:
+			s=dif_time
+		if (dif_time//60//60)>=1:
+			s=dif_time/60-60*(dif_time//60//60)
+		else:
+			m=dif_time/60
+		h=m/60
+		start_time = datetime(1900,1,1,int(h),int(m),int(s))
 		start_time_format = start_time.strftime("%H:%M:%S")
-		print('\n**************************************')
-		print '           SUDOKU GAME      ', start_time_format
-		print('**************************************')
+		self.header("SUDOKU GAME  "+ start_time_format)
+		#self.header("SUDOKU GAME  ")
+		self.interactive.matrix.printmatrix()
 		print(' ')
-		self.input_matrix.printmatrix()
-		print(' ')
-		print(' Game message: ')
-		print(' ')
-		print('        1) Solve Game')
-		print('        2) Change cell value')
-		print('        3) Hint')
-		print('        4) Save Game')
-		print('        5) Restart Game')
-		print('        6) Return to main menu')
-		print(' ')
+		input_menu=' Game message: \n'+\
+					  '        1) Solve Game\n'+\
+					  '        2) Change cell value\n'+\
+					  '        3) Hint\n'+\
+					  '        4) Save Game\n'+\
+					  '        5) Restart Game\n'+\
+					  '        6) Return to main menu\n'
+		self.mesage(input_mesage)
+		self.menu(input_menu)
 		print(' Please select from the following options: ')
 		choiceinteractive = raw_input(" ")
+		if choiceinteractive not in ['1','2','3','4','5','6']:
+			self.interactivegame("Select the proper option")
 		if choiceinteractive == '1':
 			self.gamesolved()
 		elif choiceinteractive == '2':
+			
 			self.changecellvalue()
 		elif choiceinteractive == '3':
-			print"Hint....."
+			if self.interactive.matrix.zero_count(self.interactive.matrix.first_matrix)!=0:
+				x,y=self.interactive.solve_one() 
+				msg="Solved position: "+ str(x)+","+str(y)
+			else:
+				msg="Solved SUDOKU "
+			self.interactivegame(msg)
 		elif choiceinteractive == '4':
 			self.savegame()
 		elif choiceinteractive == '5':
 			self.restartgame()
 		else:
 			self.sudokumenu()
-		
+	
+			 
+			
 		
 	def sudokumenu(self):
-		self.bmatrix = self.blankmatrix()
-				
+		self.bmatrix = self.blankmatrix()	
 		print('\n**************************************')
 		print('              PACSUDOKU                  ')
 		print('**************************************')
@@ -263,7 +286,7 @@ class SudokuConsoleUserInterface(Interface):
 				
 			print('\n********************************************')
 			print('             End Game			              ')
-			print('**********************************************')
+			print('*********************************************')
 			os._exit(0)
 							
 		else:
@@ -271,8 +294,71 @@ class SudokuConsoleUserInterface(Interface):
 			print ('')
 			print ('********************************************** ')
 			time.sleep(1.5)
+
+#*******************************************************************+
+#ariel
+#*******************************************************************+
+	def changecellvalue(self):
+		#self.interactive = SudokuInteractive(self.input_matrix.first_matrix)
+		if self.interactive.matrix.zero_count(self.interactive.matrix.first_matrix)!=0:
+			row,colum,value=self.get_row_column_value()
+			self.interactive.change_value_in_cell(row,colum,value)
+			
+			self.input_matrix.first_matrix=self.interactive.matrix
+			if self.interactive.matrix.zero_count(self.interactive.matrix.first_matrix)==0:
+				msg="Solved SUDOKU "
+			else:
+				dup=self.interactive.duplicate_values()
+				if len(dup)!=0:
+					msg="Filled position: "+ str(row)+","+str(colum)+"\nDuplicate values in: \n"+dup
+				else:
+					msg="Filled position: "+ str(row)+","+str(colum)
+		else:
+			msg="Solved SUDOKU " 
+		self.interactivegame(msg)
+		
 	
+	def restartgame(self):
+		interactive_matrix=deepcopy(self.interactive.copy)
+		del(self.interactive)
+		self.interactive = SudokuInteractive(interactive_matrix)
+		self.time = self.interactive.game_start()
+		self.interactivegame("Game restarted")
+		
+		
+		
+		#self.input_matrix.printmatrix()
+	def mesage(self,mesage):
+		print "**************************************"
+		print mesage
+		print "**************************************"
+
+	def get_row_column_value(self):
+		row = int(raw_input("Enter the row: "))
+		column = int(raw_input("Enter the column: "))
+		value = int(raw_input("Enter the value: "))
+		return (row,column,value)
 	
+	def header(self,text):
+		print('**************************************')
+		print('              '+text+'               ')
+		print('**************************************')
+	def body(self,matrix):
+		matrix.printmatrix()
+	def menu(self,input_menu):
+		print input_menu
+		print '**************************************'
+				
+	
+		
+		
 	def run(self):
 		"""Starts the console user interface for the PAC Sudoku game."""
 		print "\n\nStarting the console user interface ..."
+
+		default_file_handler_xml = FileHandlerXML("config.xml","w")
+		default_game_selected = SudokuConsoleUserInterface(default_file_handler_xml)
+		choose=0
+	
+		default_game_selected.sudokumenu()
+

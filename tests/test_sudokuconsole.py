@@ -45,7 +45,7 @@ class TestSudokuConsoleUserInterface(unittest.TestCase):
     
     def test_option_1_return_default_configuration(self):
         default_game_selected = SudokuConsoleUserInterface(self.default_file_handler_xml)
-        self.assertEqual('1', '1', default_game_selected.sudokumenu())
+        self.assertEqual('1', '1', default_game_selected.sudokumenu(""))
         
         
 if __name__ == "__main__":

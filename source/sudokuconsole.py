@@ -1,5 +1,6 @@
 from copy import deepcopy
 import os, time
+from os import path
 import sys
 from datetime import datetime
 from datetime import timedelta
@@ -12,7 +13,13 @@ from sudokuinteractive import SudokuInteractive
 from inout import FileHandlerXML, FileHandlerTXT, FileHandlerCSV
 
 class SudokuConsoleUserInterface(Interface):
-	"""Console class for the PAC Sudoku game."""
+	"""Console class for the PAC Sudoku game.
+		
+		Creates main manu to play Sudoku and user will able to
+		import a game form txt or csv files, generate a game, change settings,
+		save and load a game, solve Sudoku interactive etc.
+		
+	"""
 	def __init__(self,config_file_handler):
 		Interface.__init__(self, config_file_handler)
 		self.config_file_handler = config_file_handler
@@ -20,6 +27,7 @@ class SudokuConsoleUserInterface(Interface):
 		
 		
 	def blankmatrix(self):
+		""" Creates an empty matrix to print in console initializing game."""
 		blankmatrix = [[0,0,0,0,0,0,0,0,0],
 					[0,0,0,0,0,0,0,0,0],
 					[0,0,0,0,0,0,0,0,0],
@@ -33,50 +41,39 @@ class SudokuConsoleUserInterface(Interface):
 	
 	
 	def importgame(self):
-		print('\n**************************************')
-		print( "           IMPORT GAME           ")
-		print('**************************************')
-		print(' ')
-		print'Default file format ', self.config.supported_inputTypes[0]
+		""" Import a game form a TXT file or CSC file displaying matrix in console."""
+		self.header(" IMPORT GAME  ")
+		print'Default file format ', self.config.inputType
 		path_txt_file = raw_input("Insert Path: " )
+		sizepath = len(path_txt_file)
+		extensionfile = path_txt_file[sizepath-3:]
 		print(' ')
-		while self.load_sudoku_from_file(path_txt_file) == False and self.load_sudoku_from_file(path_txt_file)== True:
-			path_txt_file = path_txt_file = raw_input("Insert Path: " )
-		self.solvegame()
+		while self.load_sudoku_from_file(path_txt_file) == False or\
+		 	extensionfile.upper() != self.config.inputType:
+			path_txt_file = raw_input("Insert valid Path: " )
+			sizepath = len(path_txt_file)
+			extensionfile = path_txt_file[sizepath-3:]
+			print extensionfile
+		self.interactive = SudokuInteractive(self.input_matrix.first_matrix)
+		self.time = self.interactive.game_start()
+		self.interactivegame("")
 	
-	def solvegame(self):
-		print('\n**************************************')
-		print( "           SUDOKU GAME           ")
-		print('**************************************')
-		print(' ')
-		self.input_matrix.printmatrix()
-		print(' ')
-		print('               MENU                    ')
-		print(' ')
-		print('        1) Solve Game')
-		print('        2) Play Interactive Game')
-		print('        3) Return to main menu')
-		print(' ')
-		print(' Please select from the following options: ')
-		choicesolve = raw_input(" ")
-		if choicesolve == '1':
+	def gameoutput(self):
+		"""
+			Select if game will be displaying in Console 
+			or will be exported according config file and calls
+			gamesolved() which print matrix solved in Console or
+			calls outputgametofile() to export game solved in a file.
+		"""
+		if self.config.outputType == 'Console':
 			self.gamesolved()
-		elif choicesolve == '2':
-			self.interactive = SudokuInteractive(self.input_matrix.first_matrix)
-			self.time = self.interactive.game_start()
-			self.interactivegame("")
-		else:
-			self.sudokumenu()
+		self.outputgametofile()
 		
-
 	def gamesolved(self):
-		
+		"""Print Sudoku solved in console."""
 		if self.solve_sudoku() == True:
-			print('\n**************************************')
-			print( "           SUDOKU GAME           ")
-			print('**************************************')
-			print(' ')
-			self.interactive.solved.printmatrix()
+			self.header(" SUDOKU GAME  ")
+			self.output_matrix.printmatrix()
 			print(' ')
 			print'Game message:     '
 			print'Game solved by ', self.config.defaultAlgorithm, ' algorithm.'
@@ -87,116 +84,154 @@ class SudokuConsoleUserInterface(Interface):
 			print(' Please select from the following options: ')
 			choicegamesolved = raw_input(" ")
 			if choicegamesolved == '1':
-				self.savegame()
+				self.outputgametofile()
 			else:
-				self.sudokumenu()
+				self.sudokumenu("")
 		else:
-			print(' ')
-			print("Sudoku unsolvable, generate another.")
-			print(' ')
-			self.sudokumenu()
+			self.sudokumenu("Sudoku unsolvable, generate another.")
 	
+	def outputgametofile(self):
+		"""Export game solved to file."""
+		self.header(" EXPORT GAME SOLVED ")
+		print(' ')
+		print('Type file name to export game solved:')
+		exportpath = raw_input(" ")
+		
+		if self.export_sudoku_to_file(exportpath) == True:
+			print(' ')
+			print'Game was exported correctly in: \n', path.abspath(exportpath)
+			print(' ')
+			self.sudokumenu("")
+		else:
+			print('Game was not saved, because path not exists or access permissions, try again please')
+			self.gamesolved()
+			
+			
+			
 	def generategame(self):
+		"""Generates a Sudoku game."""
 		if self.generate_sudoku() == True:
 			self.interactive = SudokuInteractive(self.input_matrix.first_matrix)
-			self.solvegame()
+			self.time = self.interactive.game_start()
+			self.interactivegame("")
 		else:
-			print("Sudoku unsolvable, generate another.")
-			self.sudokumenu()
+			self.sudokumenu("Sudoku unsolvable, generate another.")
 	
-	
-	
-	def changesettings(self):
-		print('\n**************************************')
-		print('            CHANGE SETTINGS             ')
-		print('**************************************')
+	def configfilesettings(self):
+		"""Display config values set by default an allow to change them."""
+		self.header(" CHANGE SETTINGS  ")
 		print('')
-		print('')
-		print('Input File Type')
+		print('1) Input File Type')
 		if self.config.inputType == 'TXT':
-			print '1) -',self.config.inputType
-			print('2) CSV')
+			print '(x)',self.config.inputType
+			print('( ) CSV')
 		else:
-			print('1) TXT')
-			print '2) -',self.config.inputType
+			print('() TXT')
+			print '(x)',self.config.inputType
 		print('')
-		new_input_type = raw_input('Type new Input Type: ')
 		
-		print('')
-		print('Output Type') 
+		print('2) Output Type') 
 		if self.config.outputType == 'Console':
-			print'1) -',self.config.outputType
-			print('2) File')
+			print'(x)',self.config.outputType
+			print('( ) File')
 		else:
-			print('1) Console')
-			print'2) -',self.config.outputType
-		print('')
-		new_output_type = raw_input('Type new Output Type: ')
+			print('( ) Console')
+			print'(x)',self.config.outputType
 		
 		print('')
-		print('Algorithm')
+		print('3) Algorithm')
 		if self.config.defaultAlgorithm == 'Backtracking':
-			print '1) -',self.config.defaultAlgorithm
-			print('2) Norvig')
-			print('3) XAlgorithm')
+			print '(x)',self.config.defaultAlgorithm
+			print('( ) Norvig')
+			print('( ) XAlgorithm')
 		elif self.config.defaultAlgorithm == 'Norvig':
-			print('1) Backtracking')
-			print '2) -',self.config.defaultAlgorithm
-			print('3) XAlgorithm')
+			print('( ) Backtracking')
+			print '(x)',self.config.defaultAlgorithm
+			print('( ) XAlgorithm')
 		else:
-			print('1) Backtracking')
-			print('2) Norvig')
-			print '3) -',self.config.defaultAlgorithm
-		
-		print('')		
-		new_default_algorithm = raw_input('Type new Algorithm Type: ')
+			print('( ) Backtracking')
+			print('( ) Norvig')
+			print '(x)',self.config.defaultAlgorithm
 		
 		print('')
-		print('Difficult Level')
-		
+		print('4) Difficult Level')
 		if self.config.difficultyLevel == 'Low':
-			print '1) -',self.config.difficultyLevel
-			print('2) Medium')
-			print('3) High')
+			print '(x)',self.config.difficultyLevel
+			print('( ) Medium')
+			print('( ) High')
 		elif  self.config.difficultyLevel == 'Medium':
-			print('1) Low')
-			print '2) -',self.config.difficultyLevel
-			print('3) High')
+			print('( ) Low')
+			print '(x)',self.config.difficultyLevel
+			print('( ) High')
 		else:
-			print('1) Low')
-			print('2) Medium')
-			print'3) -',self.config.difficultyLevel
-		print('')		
-		new_difficulty_level = raw_input('Type new Level Type: ')
-		
+			print('( ) Low')
+			print('( ) Medium')
+			print'(x)',self.config.difficultyLevel
 		print(' ')
-		print('        1) Save')
+		print('        1)Change Settings')
 		print('        2) Return to main menu')
 		print(' ')
 		print(' Please select from the following options: ')
-		choicesettings = raw_input(" ")
+		choiceconfigfile = raw_input(" ")
 		
-		if choicesettings == '1':
-			self.savesettings(new_input_type, new_output_type, new_default_algorithm, new_difficulty_level)
+		if choiceconfigfile == '1':
+			
+			self.changesettings(self.inputtype(), self.outputtype(), self.algorithmsolve(), self.difficultlevel())
 		else:
-			yes_no = raw_input('You will lost any change in settings. Continue?(yes/no): ')
-			if yes_no == 'yes':
-				self.sudokumenu()
-			else:
-				print(' New settings will be saved ')
-				self.savesettings(new_input_type, new_output_type, new_default_algorithm, new_difficulty_level)
-				
-	
-	def savesettings(self, new_input_type, new_output_type, new_default_algorithm, new_difficulty_level):
-		if self.update_config_input_type(new_input_type) == True or\
-			self.update_config_output_type(new_output_type) == True or\
-			self.update_config_default_algorithm(new_default_algorithm) == True or\
-			self.update_config_difficulty_level(new_difficulty_level) == True:
-				if self.save_config_to_file(self.config_file_handler) == True:
+			self.sudokumenu("")
+		
+		
+	def changesettings(self, inputtype, outputtype, algorithmsolve, difficultlevel):
+		"""Change default values with custom values."""
+		input_menu='        1) Save\n'+\
+				'        2) Return to main menu\n'
+		self.menu(input_menu)
+		print(' Please select from the following options ')
+		choicesettings = raw_input(" ")
+		if choicesettings == '1':
+			if inputtype != '':
+				self.config.inputType = inputtype
+			if outputtype !='':
+				self.config.outputType = outputtype
+			if algorithmsolve != '':
+				self.config.defaultAlgorithm = algorithmsolve
+			if difficultlevel != '':
+				self.config.difficultyLevel = difficultlevel
+			if self.save_config_to_file(self.config_file_handler) == True:
 					print('Settings were saved correctly ')
 		else:
 			print('Settings were not saved correctly, please try again ')
-		self.sudokumenu()
+			print(' ')
+		self.sudokumenu("")
+		
+						
+	def inputtype(self):
+		"""Read new in put type value to change later in config file."""
+		print('')
+		print('1) Input File Type')
+		print('')
+		return raw_input('Type new Input Type: ')
+		
+	
+	def outputtype(self):
+		"""Read new out put type value to change later in config file."""
+		print('')
+		print('2) Output Type') 
+		print('')
+		return raw_input('Type new Output Type: ')
+	
+	def algorithmsolve(self):
+		"""Read new algorithm name to change later in config file."""
+		print('')
+		print('3) Algorithm')
+		return raw_input('Type new Algorithm Type: ')
+	
+	def difficultlevel(self):
+		"""Read new difficult level to change later in config file."""
+		print('')
+		print('4) Difficult Level')
+		print('')		
+		return raw_input('Type new Level Type: ')
 	
 	def interactivegame(self,input_mesage):
 		dif_time=time.clock()-self.time
@@ -212,7 +247,7 @@ class SudokuConsoleUserInterface(Interface):
 		start_time = datetime(1900,1,1,int(h),int(m),int(s))
 		start_time_format = start_time.strftime("%H:%M:%S")
 		self.header("SUDOKU GAME  "+ start_time_format)
-		#self.header("SUDOKU GAME  ")
+		
 		self.interactive.matrix.printmatrix()
 		print(' ')
 		input_menu=' Game message: \n'+\
@@ -229,7 +264,7 @@ class SudokuConsoleUserInterface(Interface):
 		if choiceinteractive not in ['1','2','3','4','5','6']:
 			self.interactivegame("Select the proper option")
 		if choiceinteractive == '1':
-			self.gamesolved()
+			self.gameoutput()
 		elif choiceinteractive == '2':
 			
 			self.changecellvalue()
@@ -245,29 +280,33 @@ class SudokuConsoleUserInterface(Interface):
 		elif choiceinteractive == '5':
 			self.restartgame()
 		else:
-			self.sudokumenu()
+			self.sudokumenu("")
 	
 			 
 			
 		
-	def sudokumenu(self):
-		self.bmatrix = self.blankmatrix()	
-		print('\n**************************************')
-		print('              PACSUDOKU                  ')
-		print('**************************************')
-		print('')
+	def sudokumenu(self,input_message):
+		"""Print main menu for PacSudoku game"""
+		self.bmatrix = self.blankmatrix()
+		self.header("PACSUDOKU  ")	
+		
 		self.bmatrix.printmatrix()
 		print('')
 		print('               MENU                    ')
-		print('          1) Import Game')
-		print('	  2) Load Saved Game')
-		print('	  3) Generate Game')
-		print('	  4) Change Settings')
-		print('	  5) Exit')
-		print('')
-		print(' Please select from the following options: ')
+		input_menu =	'        1) Import Game\n'+\
+				'        2) Load Saved Game\n'+\
+				'        3) Generate Game\n'+\
+				'        4) Change Settings\n'+\
+				'        5) Exit\n'
+		
+		self.mesage(input_message)
+		self.menu(input_menu)
+		print(' ')
+		print(' Please select from the previous options ')
 		choice = raw_input(" ")
-		print ('')
+		if choice not in ['1','2','3','4','5']:
+			self.sudokumenu("Select the proper option")
+			
 		if choice == "1":
 			self.importgame()
 			time.sleep(10)
@@ -280,20 +319,13 @@ class SudokuConsoleUserInterface(Interface):
 			self.generategame()
 			time.sleep(20)
 		elif choice == "4":
-			self.changesettings()
+			self.configfilesettings()
 			time.sleep(20)
-		elif choice == "5":
-				
-			print('\n********************************************')
-			print('             End Game			              ')
-			print('*********************************************')
+		else:
+			self.header("End Game  ")	
 			os._exit(0)
 							
-		else:
-			print (" Please Choose a valid number from the given choices" + "\n")
-			print ('')
-			print ('********************************************** ')
-			time.sleep(1.5)
+		
 
 #*******************************************************************+
 #ariel
@@ -343,8 +375,10 @@ class SudokuConsoleUserInterface(Interface):
 		print('**************************************')
 		print('              '+text+'               ')
 		print('**************************************')
+	
 	def body(self,matrix):
 		matrix.printmatrix()
+		
 	def menu(self,input_menu):
 		print input_menu
 		print '**************************************'
@@ -360,5 +394,5 @@ class SudokuConsoleUserInterface(Interface):
 		default_game_selected = SudokuConsoleUserInterface(default_file_handler_xml)
 		choose=0
 	
-		default_game_selected.sudokumenu()
+		default_game_selected.sudokumenu("")
 

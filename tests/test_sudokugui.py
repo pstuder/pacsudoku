@@ -3,6 +3,7 @@ from datetime import datetime
 from datetime import timedelta
 from os import remove
 from Tkinter import Frame
+from Tkinter import IntVar
 from Tkinter import StringVar
 
 import sudokugui
@@ -12,21 +13,152 @@ from main import Interface
 from validmatrix import MatrixHandler
 
 
-class DummySudokuUI(Frame):
+class DummyInteractive():
+	def __init__(self):
+		self.memory = {1:(1,"120","100","test1"), 2:(2,"006","406","test2")}
+
+
+class DummyCanvas(Frame):
 	def __init__(self):
 		Frame.__init__(self, None)
-		self.config = Configfile()
 
 
-class DummySudokuUIWithInterface(Frame, Interface):
-	def __init__(self, file_handler):
+class DummyMemoryUI(Frame):
+	def __init__(self):
 		Frame.__init__(self, None)
-		Interface.__init__(self, file_handler)
 
 
 class DummySettingsUI(Frame):
 	def __init__(self):
 		Frame.__init__(self, None)
+
+
+class DummySudokuUI(Frame):
+	def __init__(self):
+		Frame.__init__(self, None)
+		self.config = Configfile()
+		self.interactive = DummyInteractive()
+		self.sudoku_canvas = DummyCanvas()
+
+
+class TestSudokuGUIMemory(unittest.TestCase):
+	def setUp(self):
+		self.dummy_sudoku_ui = DummySudokuUI()
+		self.dummy_memory_ui = DummyMemoryUI()
+
+	def test_cant_instance_abstract_gui_memory_utilities_class(self):
+		self.assertRaises(
+			NotImplementedError,
+			sudokugui.SudokuGUIMemoryUtilities,
+			self.dummy_memory_ui,
+			self.dummy_sudoku_ui
+			)
+
+	def test_instance_gui_memory_main_frame_builder(self):
+		gui_memory_builder = sudokugui.GUIMemoryMainFrameBuilder(
+			self.dummy_memory_ui,
+			self.dummy_sudoku_ui
+		)
+		actual_memory_builder_tuple = (
+			gui_memory_builder.gui,
+			gui_memory_builder.memory_gui
+		)
+		self.assertEqual(
+			actual_memory_builder_tuple,
+			(self.dummy_sudoku_ui, self.dummy_memory_ui)
+		)
+		try:
+			self.assertEqual(
+				self.dummy_memory_ui.memory_radio_buttons,
+				[]
+			)
+			self.assertTrue(
+				isinstance(
+					self.dummy_memory_ui.memory_int_var,
+					IntVar
+				)
+			)
+		except:
+			assert False
+
+	def test_instance_gui_memory_bottom_frame_builder(self):
+		gui_memory_builder = sudokugui.GUIMemoryBottomFrameBuilder(
+			self.dummy_memory_ui,
+			self.dummy_sudoku_ui
+		)
+		actual_memory_builder_tuple = (
+			gui_memory_builder.gui,
+			gui_memory_builder.memory_gui
+		)
+		self.assertEqual(
+			actual_memory_builder_tuple,
+			(self.dummy_sudoku_ui, self.dummy_memory_ui)
+		)
+
+	def test_instance_gui_memory_builder(self):
+		gui_memory_builder = sudokugui.SudokuGUIMemoryBuilder(
+			self.dummy_memory_ui,
+			self.dummy_sudoku_ui,
+			0
+		)
+		actual_memory_builder_tuple = (
+			gui_memory_builder.gui,
+			gui_memory_builder.memory_gui,
+			gui_memory_builder.mode
+		)
+		self.assertEqual(
+			actual_memory_builder_tuple,
+			(self.dummy_sudoku_ui, self.dummy_memory_ui, 0)
+		)
+		self.assertTrue(
+			isinstance(
+				gui_memory_builder.main_frame_builder,
+				sudokugui.GUIMemoryMainFrameBuilder
+			)
+		)
+		self.assertTrue(
+			isinstance(
+				gui_memory_builder.bottom_frame_builder,
+				sudokugui.GUIMemoryBottomFrameBuilder
+			)
+		)
+
+	def test_instance_gui_memory_dialog_load_mode(self):
+		gui_memory_dialog = sudokugui.SudokuGUIMemoryDialog(
+			self.dummy_sudoku_ui,
+			1
+		)
+		self.assertTrue(
+			isinstance(
+				gui_memory_dialog.memory_builder,
+				sudokugui.SudokuGUIMemoryBuilder
+			)
+		)
+		self.assertEqual(gui_memory_dialog.memory_builder.mode, 1)
+		self.assertEqual(self.dummy_sudoku_ui, gui_memory_dialog.gui)
+	
+	def test_instance_gui_memory_dialog_save_mode(self):
+		gui_memory_dialog = sudokugui.SudokuGUIMemoryDialog(
+			self.dummy_sudoku_ui,
+			0
+		)
+		self.assertTrue(
+			isinstance(
+				gui_memory_dialog.memory_builder,
+				sudokugui.SudokuGUIMemoryBuilder,
+			)
+		)
+		self.assertEqual(gui_memory_dialog.memory_builder.mode, 0)
+		self.assertEqual(self.dummy_sudoku_ui, gui_memory_dialog.gui)
+		try:
+			self.assertTrue(
+				isinstance(
+					gui_memory_dialog.memory_name_string_var,
+					StringVar
+				)
+			)
+		except:
+			assert False
 
 
 class TestSudokuGUISettings(unittest.TestCase):

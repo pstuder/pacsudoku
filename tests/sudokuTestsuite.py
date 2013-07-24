@@ -17,6 +17,7 @@ from test_solver import TestNorvigAlgorithm
 from test_solver import TestXAlgorithm
 from test_solver import TestBacktrackingAlgorithm
 from test_sudokuinteractive import Test_sudoku_interactive
+from test_sudokugui import TestSudokuGUIMemory
 from test_sudokugui import TestSudokuGUISettings
 from test_sudokugui import TestSudokuGUI
 from testConfig import test_configfile
@@ -53,6 +54,7 @@ if __name__=="__main__":
     suite.addTest(unittest.makeSuite(Test_sudoku_interactive))
 
     # Module sudokugui
+    suite.addTest(unittest.makeSuite(TestSudokuGUIMemory))
     suite.addTest(unittest.makeSuite(TestSudokuGUISettings))
     suite.addTest(unittest.makeSuite(TestSudokuGUI))
 

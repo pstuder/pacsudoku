@@ -1,3 +1,4 @@
+import time
 import tkFileDialog
 import tkMessageBox
 from datetime import datetime
@@ -5,17 +6,231 @@ from datetime import timedelta
 from tkFont import Font
 from Tkinter import Button
 from Tkinter import Canvas
+from Tkinter import Entry
 from Tkinter import Frame
-from Tkinter import StringVar
+from Tkinter import IntVar
 from Tkinter import Label
 from Tkinter import Menu
 from Tkinter import Menubutton
 from Tkinter import PhotoImage
 from Tkinter import Radiobutton
+from Tkinter import StringVar
 from Tkinter import Toplevel
 
 from main import Interface
 from sudokuinteractive import SudokuInteractive
+from validmatrix import MatrixHandler
+
+
+class SudokuGUIMemoryUtilities():
+	"""Abstrac Class for the Sudoku GUI Memory utilites"""
+	def __init__(self, sudoku_memory_gui, sudoku_gui):
+		"""Initializes the Sudoku GUI Memory utility.
+		
+		Raises NotImplementedError if attempting to initialize
+		since abstrac class.
+		
+		Creates the following instance attribute:
+		gui -- A reference to the Sudoku GUI.
+		memory_gui -- A reference to the Sudoku Memory GUI.
+		
+		"""
+		if self.__class__.__name__ == "SudokuGUIMemoryUtilities":
+			raise NotImplementedError("Can't instance from abstract class!")
+		self.gui = sudoku_gui
+		self.memory_gui = sudoku_memory_gui
+
+
+class GUIMemoryMainFrameBuilder(SudokuGUIMemoryUtilities):
+	"""Class containing methos to build memory main frame."""
+	def __init__(self, sudoku_memory_gui, sudoku_gui):
+		"""Initializes a new sudoku gui memory main frame builder.
+		
+		It first creates the instance attributes of SudokuGUIMemoryUtilities.
+		Additionally it creates instance attributes for sudoku_memory_gui.
+		
+		"""
+		SudokuGUIMemoryUtilities.__init__(
+			self,
+			sudoku_memory_gui,
+			sudoku_gui
+		)
+		self.memory_gui.memory_radio_buttons = []
+		self.memory_gui.memory_int_var = IntVar()
+		self.memory_gui.memory_int_var.set(1)
+		
+	def build_main_frame(self):
+		"""Builds the main frame for the list of memory entries."""
+		self.memory_gui.main_frame = Frame(
+			self.memory_gui
+		)
+		self.memory_gui.main_frame.pack(side="top")
+			
+	def build_list(self):
+		"""Builds dinamically the list of memory entries."""
+		for item in self.gui.interactive.memory.keys():
+			memory_tuple = self.gui.interactive.memory[item]
+			memory_text = "(" + str(item) + ") Name: " + memory_tuple[3] +\
+							"; Time: " + str(memory_tuple[0])
+			self.memory_gui.memory_radio_buttons.append(
+				Radiobutton(
+					self.memory_gui.main_frame,
+					text=memory_text,
+					value=item,
+					variable=self.memory_gui.memory_int_var
+				)
+			)
+		for radio_button in self.memory_gui.memory_radio_buttons:
+			radio_button.pack()
+
+
+class GUIMemoryBottomFrameBuilder(SudokuGUIMemoryUtilities):
+	"""Class containing methos to build memory bottom frame."""
+	def build_bottom_frame(self):
+		"""Builds the frame for the buttons of the memory UI."""
+		self.memory_gui.bottom_frame = Frame(
+			self.memory_gui
+		)
+		self.memory_gui.bottom_frame.pack(side="bottom")
+	
+	def build_bottom_frame_buttons(self, mode):
+		"""Builds the buttons for the bottom frame of the memory UI."""
+		if mode:
+			self.memory_gui.load_button = Button(
+				self.memory_gui.bottom_frame,
+				text="Load",
+				width=12,
+				command=self.memory_gui.load_entry
+			)
+			self.memory_gui.load_button.pack(side="left")
+		else:
+			self.gui.sudoku_canvas.unbind_all("<Key>")
+			self.memory_gui.memory_name_string_var = StringVar()
+			self.memory_gui.name_label = Label(
+				self.memory_gui.bottom_frame,
+				text="Name"
+			)
+			self.memory_gui.name_label.pack(side="left")
+			self.memory_gui.name_entry = Entry(
+				self.memory_gui.bottom_frame,
+				textvariable=self.memory_gui.memory_name_string_var,
+				width=12
+			)
+			self.memory_gui.name_entry.pack(side="left")
+			self.memory_gui.save_button = Button(
+				self.memory_gui.bottom_frame,
+				text="Save",
+				width=12,
+				command=self.memory_gui.save_entry
+			)
+			self.memory_gui.save_button.pack(side="left")
+		self.memory_gui.cancel_button = Button(
+			self.memory_gui.bottom_frame,
+			text="Cancel",
+			width=12,
+			command=self.memory_gui.cancel_memory
+		)
+		self.memory_gui.cancel_button.pack(side="left")
+
+
+class SudokuGUIMemoryBuilder(SudokuGUIMemoryUtilities):
+	"""Class containing methos to build the PAC Sudoku Memory GUI."""
+	def __init__(self, sudoku_memory_gui, sudoku_gui, mode):
+		"""Initializes a new sudoku gui memory builder.
+		
+		It first creates instance attributes of SudokuGUIMemoryUtilities.
+		Additionally it creates the following instance attributes:
+		main_frame_builder -- Set of methods for building the main frame
+		mode -- Mode to build: For loading or saving
+		
+		"""
+		SudokuGUIMemoryUtilities.__init__(
+			self,
+			sudoku_memory_gui,
+			sudoku_gui
+		)
+		self.mode = mode
+		self.main_frame_builder = GUIMemoryMainFrameBuilder(
+			sudoku_memory_gui, sudoku_gui
+		)
+		self.bottom_frame_builder = GUIMemoryBottomFrameBuilder(
+			sudoku_memory_gui, sudoku_gui
+		)
+
+	def build_frames(self):
+		"""Builds all the frames for the Sudoku GUI Memory dialog."""
+		self.main_frame_builder.build_main_frame()
+		self.main_frame_builder.build_list()
+		self.bottom_frame_builder.build_bottom_frame()
+		self.bottom_frame_builder.build_bottom_frame_buttons(self.mode)
+
+
+class SudokuGUIMemoryDialog(Toplevel):
+	"""GUI class for the PAC Sudoku Memory Dialog."""
+	def __init__(self, sudoku_gui, mode, **kwargs):
+		"""Builds and initializes the GUI as a top level UI.
+		
+		First, the TopLevel instance attributes are created, additionally
+		the following instance attributes are created:
+		memory_builder -- Set of methods for building the PAC Sudoku GUI
+		gui -- Instance of the main Sudoku Game GUI.
+		
+		"""
+		Toplevel.__init__(self, sudoku_gui, **kwargs)
+		self.memory_builder = SudokuGUIMemoryBuilder(self, sudoku_gui, mode)
+		self.gui = sudoku_gui
+		self.mode = mode
+		self._createWidgets()
+	
+	def load_entry(self):
+		"""Loads currently selected memory slot and exits memory UI."""
+		memory_slot = self.memory_int_var.get()
+		if self.gui.continue_interactive_mode(memory_slot):
+			self.grab_release()
+			self.destroy()
+		else:
+			tkMessageBox.showinfo(
+				"No status saved",
+				"There is no sudoku game saved in this position."
+			)
+		
+	def save_entry(self):
+		"""Save to currently selected memory slot and exits memory UI."""
+		memory_slot = self.memory_int_var.get()
+		memory_name = self.memory_name_string_var.get()
+		if memory_name == "":
+			tkMessageBox.showinfo(
+				"Type a name",
+				"Pelase type a name before saving."
+			)
+			return None
+		self.gui.interactive.save_game(
+			self.gui.last_game_start,
+			memory_slot,
+			memory_name
+		)
+		tkMessageBox.showinfo(
+			"Status saved",
+			"Status of current play successfully saved\n" +
+			"at position {0} as '{1}'".format(memory_slot, memory_name)
+			
+		)
+		self.grab_release()
+		self.destroy()
+		self.gui.reset_interactive()
+		self.gui.reset_display()
+
+	def cancel_memory(self):
+		if self.mode == 0:
+			self.gui.sudoku_canvas.bind_all(
+				"<Key>",
+				self.gui.play_action_set.update_square_action
+			)
+		self.destroy()
+		
+	def _createWidgets(self):
+		"""Calls the gui_builder methods to build the memory GUI"""
+		self.memory_builder.build_frames()
 
 
 class SudokuGUISettingsUtilities():
@@ -470,7 +685,9 @@ class SudokuGUISolveActionSet(SudokuGUIUtilities):
 			filetypes=[("TXT Files", "TXT")],
 			title="Export Solution"
 		)
-		if self.gui.export_sudoku_to_file(file):
+		if file == "":
+			return None
+		elif self.gui.export_sudoku_to_file(file):
 			tkMessageBox.showinfo(
 				"Export Solution",
 				"SUccessfully exported solution to:\n %s" % file
@@ -478,17 +695,22 @@ class SudokuGUISolveActionSet(SudokuGUIUtilities):
 		else:
 			tkMessageBox.showerror(
 				"Error Exporting Solution",
-				"Unable to export solution to:\n%s" % file
+				"Unable to export solution to:\n%s" % file +
+				"\nEither the path does not exist or " +
+				"you do not have enough privileges."
 			)
-	
+
 
 class SudokuGUISettingsActionSet(SudokuGUIUtilities):
 	"""Class containing action commands for changing config settings."""
 	def edit_settings_action(self):
 		"""Opens the Edit Settings dialog to edit each config setting."""
+		screen_x = self.gui.winfo_pointerx() - 100
+		screen_y = self.gui.winfo_pointery() - 20
+		screen_geometry = "250x200+{0}+{1}".format(screen_x, screen_y)
 		settings_dialog = SudokuGUISettingsDialog(self.gui)
 		settings_dialog.title("PAC Sudoku Settings")
-		settings_dialog.geometry("250x200+30+30")
+		settings_dialog.geometry(screen_geometry)
 		settings_dialog.transient(self.gui)
 		settings_dialog.grab_set()
 
@@ -508,6 +730,9 @@ class SudokuGUISettingsActionSet(SudokuGUIUtilities):
 
 class SudokuGUIPlayActionSet(SudokuGUIUtilities):
 	"""Class containing action commands for the sudoku interactive mode."""
+	LOAD = 1
+	SAVE = 0
+	
 	def update_square_action(self, event):
 		"""Fills in a digit typed using the keyboard to a selected square.
 		
@@ -520,12 +745,14 @@ class SudokuGUIPlayActionSet(SudokuGUIUtilities):
 		sudoku. 
 		
 		"""
+		if event.keysym not in '123456789' and event.keysym != 'Escape':
+			return None
 		target = self.gui.currently_editing
 		row = self.gui.current_square_y
 		column = self.gui.current_square_x
 		if event.keysym in '123456789':
 			digit = int(event.keysym)
-		elif event.keysym == 'Escape':
+		else:
 			self.gui.interactive.matrix.first_matrix[row][column] = 0
 			self.gui.violation = False
 			self.gui.sudoku_canvas.itemconfig(
@@ -534,7 +761,6 @@ class SudokuGUIPlayActionSet(SudokuGUIUtilities):
 			)
 			self.gui.currently_editing = None
 			return None
-		else: return None
 		if self.gui.currently_editing is not None:
 			self.gui.interactive.change_value_in_cell(row, column, digit)
 		else:
@@ -618,8 +844,9 @@ class SudokuGUIPlayActionSet(SudokuGUIUtilities):
 
 	def restart_action(self):
 		"""Terminates current interactive mode and restarts the same game."""
-		self.gui.build_squares_from_input_matrix()
-		self.gui.start_interactive_mode()
+		if self.gui.input_matrix is not None:
+			self.gui.build_squares_from_input_matrix()
+			self.gui.start_interactive_mode()
 
 	def get_hint_action(self):
 		"""Automatically solves one number in the sudoku canvas.
@@ -661,16 +888,35 @@ class SudokuGUIPlayActionSet(SudokuGUIUtilities):
 			)
 
 	def save_state_action(self):
-		"""Saves current status of sudoku and resets the canvas.
-		
-		NOT YET IMPLEMENTED!
-		
-		"""
-		tkMessageBox.showwarning(
-			"Not Implemented",
-			"Save state not yet implemented!"
-		)
+		"""Saves current status of sudoku and resets the canvas."""
+		if self.gui.interactive is not None:
+			screen_x = self.gui.winfo_pointerx() - 100
+			screen_y = self.gui.winfo_pointery() - 20
+			screen_geometry = "396x144+{0}+{1}".format(screen_x, screen_y)
+			memory_dialog = SudokuGUIMemoryDialog(self.gui, self.SAVE)
+			memory_dialog.title("Save Game")
+			memory_dialog.geometry(screen_geometry)
+			memory_dialog.transient(self.gui)
+			memory_dialog.grab_set()
+		else:
+			tkMessageBox.showinfo(
+				"No sudoku loaded",
+				"Please start a new game before saving current state."
+			)
 
+	def load_state_action(self):
+		"""Terminate current interactive mode and load a saved game."""
+		screen_x = self.gui.winfo_pointerx() - 100
+		screen_y = self.gui.winfo_pointery() - 20
+		screen_geometry = "256x128+{0}+{1}".format(screen_x, screen_y)
+		if self.gui.interactive is None:
+			self.gui.interactive = SudokuInteractive([])
+		self.gui.interactive.recover_values_from_file()
+		memory_dialog = SudokuGUIMemoryDialog(self.gui, self.LOAD)
+		memory_dialog.title("Select Saved Game")
+		memory_dialog.geometry(screen_geometry)
+		memory_dialog.transient(self.gui)
+		memory_dialog.grab_set()
 
 class SudokuGUIBuilder(SudokuGUIUtilities):
 	"""Class containing methos to build the PAC Sudoku GUI."""
@@ -775,6 +1021,11 @@ class SudokuGUIMenuBuilder(SudokuGUIUtilities):
 			label="Save current state",
 			underline=0,
 			command=self.gui.play_action_set.save_state_action
+		)
+		self.gui.play_menu.add_command(
+			label="Load saved state",
+			underline=0,
+			command=self.gui.play_action_set.load_state_action
 		)
 		self.gui.play_menu.add_command(
 			label="Hint",
@@ -1028,9 +1279,42 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 		self.reset_interactive()
 		self.interactive = SudokuInteractive(self.input_matrix.first_matrix)
 		self.sudoku_canvas.bind("<Button-1>", self._init_update_square)
-		self.bind_all("<Key>", self.play_action_set.update_square_action)
+		self.sudoku_canvas.bind_all(
+			"<Key>",
+			self.play_action_set.update_square_action
+		)
 		self.last_game_start = self.interactive.game_start()
 		self._init_update_time()
+
+	def continue_interactive_mode(self, memory_pos):
+		"""Initializes the interactive mode for saved sudokus.
+		
+		Any Sudokuinteractive instance need to be reset, afterwards
+		memory.pos will be read from interactive.memory to get time
+		and input matrix. Interactive.matrix will also be restored
+		according to memory data.
+		
+		"""
+		previous_time, interactive_matrix, input_matrix, name =\
+										self.interactive.load_game(memory_pos)
+		if not interactive_matrix:
+			return False
+		self._reset_input_matrix()
+		self.input_matrix = MatrixHandler(input_matrix)
+		self.reset_interactive()
+		self.interactive = SudokuInteractive(input_matrix)
+		del(self.interactive.matrix)
+		self.interactive.matrix = MatrixHandler(interactive_matrix)
+		self.build_squares_from_interactive_matrix()
+		self.sudoku_canvas.bind("<Button-1>", self._init_update_square)
+		self.sudoku_canvas.bind_all(
+			"<Key>",
+			self.play_action_set.update_square_action
+		)
+		self.last_game_start = time.clock() - previous_time
+		self.timer += timedelta(seconds=int(previous_time))
+		self._init_update_time()
+		return True
 
 	def build_squares_from_input_matrix(self):
 		"""Draws a new sudoku from input_matrix and starts interactive mode.
@@ -1058,6 +1342,37 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 				)
 			self.square_item_matrix.append(current_square_item_list)
 
+	def build_squares_from_interactive_matrix(self):
+		"""Draws a saved sudoku and starts interactive mode.
+		
+		Once a sudoku has been loaded or generated, draw the sudoku canvas
+		with fix squares for the numbers fix numbers in input_matrix and 
+		draw open numbers for the numbers in saved sudoku using
+		interactive.matrix.
+		
+		This method also creates a new instance attribute:
+		square_item_matrix -- 9x9 matrix containing all canvas image item IDs
+		
+		"""
+		self.square_item_matrix = []
+		for i in range(9):
+			current_square_item_list = []
+			for j in range(9):
+				input_value = self.input_matrix.first_matrix[i][j]
+				interactive_value = self.interactive.matrix.first_matrix[i][j]
+				if input_value:
+					target_square = self.list_fix_squares[input_value]
+				else:
+					target_square = self.list_open_squares[interactive_value]
+				current_square_item_list.append(
+					self.sudoku_canvas.create_image(
+						40 * j + 22,
+						40 * i + 22,
+						image=target_square
+					)
+				)
+			self.square_item_matrix.append(current_square_item_list)
+
 	def reset_interactive(self):
 		"""Terminates interactive mode.
 		
@@ -1074,8 +1389,25 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 			self.currently_editing = None
 			self.interactive = None
 			self.sudoku_canvas.unbind("<Button-1>")
-			self.unbind_all("<Key>")
+			self.sudoku_canvas.unbind_all("<Key>")
 	
+	def reset_display(self):
+		self._reset_input_matrix()
+		self.sudoku_canvas.destroy()
+		self.sudoku_canvas = Canvas(
+			self.sudoku_frame,
+			width=360,
+			height=360,
+			bg="white"
+		)
+		self.sudoku_canvas.pack(side="top")
+		self.sudoku_canvas.create_line(122, 0, 122, 362, width=2)
+		self.sudoku_canvas.create_line(242, 0, 242, 362, width=2)
+		self.sudoku_canvas.create_line(0, 122, 362, 122, width=2)
+		self.sudoku_canvas.create_line(0, 242, 362, 242, width=2)
+		self.timer = datetime(1900,1,1)
+		self.time_label.configure(text=self.timer.strftime("%H:%M:%S"))
+
 	def _createWidgets(self):
 		"""Calls the gui_builder methods to build the PAC Sudoku GUI"""
 		self.gui_builder.build_gui_frames()
@@ -1085,8 +1417,11 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 
 	def _reset_time(self):
 		"""Resets the sudoku timer."""
-		self.after_cancel(self._job)
-		del(self._job)
+		try:
+			self.after_cancel(self._job)
+			del(self._job)
+		except:
+			pass
 		del(self.timer)
 		self.timer = datetime(1900,1,1)
 	
@@ -1165,4 +1500,5 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 		if selection:
 			self.settings_action_set.save_settings_action()
 		self.quit()
+
 

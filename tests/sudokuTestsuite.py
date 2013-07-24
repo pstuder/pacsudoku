@@ -1,5 +1,6 @@
 import unittest
 from coverage import coverage
+from pylint import lint
 from sys import path
 
 path.append("../source")
@@ -62,3 +63,9 @@ if __name__=="__main__":
     cov.stop()
     cov.save()
     cov.html_report(directory='../../covhtml')
+    
+    lint.Run([
+        '--output-format=html', '--files-output=y', '--reports=n',
+        'config', 'inout', 'main', 'pacsudoku', 'solver', 'sudokuconsole',
+        'sudokugui', 'sudokuinteractive', 'validmatrix'
+    ])

@@ -88,9 +88,9 @@ class MatrixHandler:
 	
 	def submatrix(self, line, column):
 		"""Creates a matrix with each sub matrix."""
-		minmatrix = [[0,0,0], 
-				[0,0,0], 
-				[0,0,0]]
+		minmatrix = [[0, 0, 0], 
+				[0, 0, 0], 
+				[0, 0, 0]]
 		row = (line/3) * 3
 		col = (column/3) * 3
 		for x in range(0, 3):
@@ -148,15 +148,15 @@ class MatrixHandler:
 	
 	def create_blank_table(self):
 		"""Return a 9X9 table initialized with zeros. """
-		return [[0,0,0,0,0,0,0,0,0], 
-			   [0,0,0,0,0,0,0,0,0], 
-			   [0,0,0,0,0,0,0,0,0], 
-			   [0,0,0,0,0,0,0,0,0], 
-			   [0,0,0,0,0,0,0,0,0], 
-			   [0,0,0,0,0,0,0,0,0], 
-			   [0,0,0,0,0,0,0,0,0], 
-			   [0,0,0,0,0,0,0,0,0], 
-			   [0,0,0,0,0,0,0,0,0]]
+		return [[0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0], 
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0], 
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0], 
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0], 
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0], 
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0], 
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0], 
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0]]
 	
 	def zero_count(self, table):
 		"""Return a int value with the count of zeros of a matrix. """
@@ -234,7 +234,7 @@ class MatrixHandler:
 	
 	def return_posible_square_values(self, table, row, column):
 		"""Return a list of possible values of a sub square. """
-		available_values =[1, 2, 3, 4, 5, 6, 7, 8, 9]
+		available_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 		square = self.square_return(row,column)
 		small_rows = self.return_small_rows(table, square)
 		small_columns = self.return_small_columns(table, square)
@@ -259,14 +259,14 @@ class MatrixHandler:
 	
 	def return_total_posible_values(self, table, row, column):
 		"""Return a complete values list of possible values. """
-		list1 =self.return_posible_vertical_values(table, row, column)
-		list2 =self.return_posible_horizontal_values(table, row, column)
-		list3 =self.return_posible_square_values(table, row, column)
-		list1 =self.return_inverted_values(list1)
-		list2 =self.return_inverted_values(list2)
-		list3 =self.return_inverted_values(list3)
-		complete_list=list1 + list2 + list3
-		imposible_values_list=[]
+		list1 = self.return_posible_vertical_values(table, row, column)
+		list2 = self.return_posible_horizontal_values(table, row, column)
+		list3 = self.return_posible_square_values(table, row, column)
+		list1 = self.return_inverted_values(list1)
+		list2 = self.return_inverted_values(list2)
+		list3 = self.return_inverted_values(list3)
+		complete_list = list1 + list2 + list3
+		imposible_values_list = []
 		for i in range(1, 10):
 			if i in complete_list:
 				imposible_values_list.append(i)
@@ -334,10 +334,10 @@ class MatrixHandler:
 		rows = len(table)
 		columns = len(table[0])
 		init_table = deepcopy(table)
-		while (zero_quantity>inserted_zeros and counter<10000):
+		while (zero_quantity > inserted_zeros and counter < 10000):
 			counter += 1
 			row=random.randint(0, rows-1)
-			column=random.randint(0, columns-1)
+			column = random.randint(0, columns-1)
 			if table[row][column] != 0:
 				if len(self.return_total_posible_values(table, row, column)) == 1:
 					aux = table[row][column]
@@ -381,7 +381,7 @@ class MatrixHandler:
 		else:
 			sudoku = self.create_exact_sudoku_dificult_matrix(35, sudoku, level)
 		
-		self.first_matrix=sudoku
+		self.first_matrix = sudoku
 		
 	
 	def create_exact_sudoku_dificult_matrix(self, limit, sudoku, level):

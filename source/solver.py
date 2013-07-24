@@ -132,7 +132,7 @@ class Norvig(Algorithm):
 			self.output_matrix.first_matrix.append(
 				[
 					int(grid[field]) for field in self._squares
-										if field[0]==letter
+										if field[0] == letter
 				]
 			)
 		return self.output_matrix
@@ -246,28 +246,28 @@ class XAlgorithm(Algorithm):
 		"""
 		Row, Column = size
 		matrix_lenght = Row * Column
-		list_of_X=self.costruct_x(matrix_lenght)
+		list_of_X = self.costruct_x(matrix_lenght)
 		list_of_Y = dict()
-		list_of_Y=self.costruct_y(matrix_lenght,Row,Column,list_of_Y)
+		list_of_Y = self.costruct_y(matrix_lenght, Row, Column, list_of_Y)
 		list_of_X, list_of_Y = self.exact_cover(list_of_X, list_of_Y)
-		self.select_proper_value(list_of_X,list_of_Y)
-		exit_mat=self.return_exit_mat(list_of_X,list_of_Y)
-		if exit_mat==[]:
+		self.select_proper_value(list_of_X, list_of_Y)
+		exit_mat = self.return_exit_mat(list_of_X, list_of_Y)
+		if exit_mat == []:
 			return None
 		else:
 			return exit_mat
 		
 	
-	def return_exit_mat(self,list_x,list_y):
+	def return_exit_mat(self, list_x, list_y):
 		""" Return a matrix that will be returned by the method solve_sudoku. """
-		exit_mat=[]
+		exit_mat = []
 		for solution in self.solve_list(list_x, list_y, []):
 			for (row, column, lenght) in solution:
 				self.output_matrix.first_matrix[row][column] = lenght
-			exit_mat=self.output_matrix.first_matrix
+			exit_mat = self.output_matrix.first_matrix
 		return exit_mat
 		
-	def select_proper_value(self,list_x,list_y):
+	def select_proper_value(self, list_x, list_y):
 		""" Return the actual XAlgorithm value after select the columns
 		using the method select.
 		"""
@@ -275,31 +275,31 @@ class XAlgorithm(Algorithm):
 			
 			for i, row in enumerate(self.output_matrix.first_matrix):
 				for j, lenght in enumerate(row):
-					if lenght!=0:
+					if lenght != 0:
 						self.select(list_x, list_y, (i, j, lenght))
 			return self
 		except:
 			return None
 		
-	def costruct_x(self,matrix_lenght):
+	def costruct_x(self, matrix_lenght):
 		""" Return the initial list of tuples of X list. """
-		a=self.first_list("rc",matrix_lenght,0,matrix_lenght)
-		b=self.first_list("rn",matrix_lenght,1,matrix_lenght+1)
-		c=self.first_list("cn",matrix_lenght,1,matrix_lenght+1)
-		d=self.first_list("bn",matrix_lenght,1,matrix_lenght+1)
+		a=self.first_list("rc", matrix_lenght, 0, matrix_lenght)
+		b=self.first_list("rn", matrix_lenght, 1, matrix_lenght+1)
+		c=self.first_list("cn", matrix_lenght, 1, matrix_lenght+1)
+		d=self.first_list("bn", matrix_lenght, 1, matrix_lenght+1)
 		return a+b+c+d
 				
 				
-	def first_list(self,text,matrix_lenght1,start,matrix_lenght2):
+	def first_list(self, text,matrix_lenght1, start, matrix_lenght2):
 		""" Return the initial list of values. """
-		list=[]
+		list = []
 		for row_column in product(
 								 range(matrix_lenght1), 
-								 range(start,matrix_lenght2)):
+								 range(start, matrix_lenght2)):
 			list.append((text, row_column))
 		return list
 		
-	def costruct_y(self,matrix_lenght,Row,Column,list_y):
+	def costruct_y(self, matrix_lenght, Row, Column, list_y):
 		""" Return the initial list of tuples of Y list.	"""
 
 		for row, column, lenght in product(
@@ -319,8 +319,8 @@ class XAlgorithm(Algorithm):
 		""" Execute the solve_sudoku method with a size of 3X3 
 		and returns a MatrixHandler type with the solution. 
 		"""
-		return_MatrixHandler=self.solve_sudoku((3,3))
-		if return_MatrixHandler!=None and return_MatrixHandler!=[]:
+		return_MatrixHandler = self.solve_sudoku((3, 3))
+		if return_MatrixHandler != None and return_MatrixHandler != []:
 			return MatrixHandler(return_MatrixHandler)
 		else:
 			del(self.output_matrix)
@@ -341,7 +341,7 @@ class XAlgorithm(Algorithm):
 			yield list(solution)
 		else:
 			column_position = min(list_x, 
-								  key=lambda column_position: 
+								  key = lambda column_position: 
 								  len(list_x[column_position]))
 			for row_position in list(list_x[column_position]):
 				solution.append(row_position)
@@ -351,7 +351,7 @@ class XAlgorithm(Algorithm):
 				self.unselect(list_x, list_y, row_position, cols)
 				solution.pop()
 			
-	def select(self,list_x, list_y, row_position):
+	def select(self, list_x, list_y, row_position):
 		""" Select the actual column to work. """
 		cols = []
 		for j in list_y[row_position]:
@@ -362,7 +362,7 @@ class XAlgorithm(Algorithm):
 			cols.append(list_x.pop(j))
 		return cols
 
-	def unselect(self,list_x, list_y, row_position, columns):
+	def unselect(self, list_x, list_y, row_position, columns):
 		""" Unselect the actual column. """
 		for j in reversed(list_y[row_position]):
 			list_x[j] = columns.pop()

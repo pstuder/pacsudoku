@@ -245,6 +245,7 @@ class SudokuInteractive():
         self.memory = self.recover_values_from_file()
         actual_time, matrix, \
             first_matrix, game_name = self.memory[memory_position]
-        del(self.matrix) 
-        self.matrix = MatrixHandler(matrix)
+        if matrix:
+            del(self.matrix) 
+            self.matrix = MatrixHandler(matrix)
         return float(actual_time), matrix, first_matrix, game_name

@@ -30,17 +30,17 @@ class TestAlgorithm(unittest.TestCase):
 
 	def test_cross(self):
 		algorithm = Algorithm(MatrixHandler([]))
-		self.assertEqual(self.crossAB, algorithm._cross(self.A, self.B))
+		self.assertEqual(self.crossAB, algorithm.cross(self.A, self.B))
 
 	def test_some(self):
 		algorithm = Algorithm(MatrixHandler([]))
 		self.assertEqual(
-			self.expected_element, algorithm._some(self.sequence)
+			self.expected_element, algorithm.some(self.sequence)
 		)
 	
 	def test_some_negative(self):
 		algorithm = Algorithm(MatrixHandler([]))
-		self.assertFalse(algorithm._some(self.sequence_negative))
+		self.assertFalse(algorithm.some(self.sequence_negative))
 
 class TestNorvigAlgorithm(unittest.TestCase):
 	def setUp(self):

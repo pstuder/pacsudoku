@@ -1,3 +1,6 @@
+
+"""Module for handling file inputs and outputs."""
+
 import csv
 from os import path
 from xml.dom import minidom
@@ -8,7 +11,7 @@ from config import Configfile
 
 class FileHandler:
 	"""Common File Handler class for file specific tasks"""
-	def __init__(self, file, mode='r'):
+	def __init__(self, file_name, mode='r'):
 		"""Initializes a new File Handler
 		
 		The following instance attributes are created:
@@ -22,14 +25,14 @@ class FileHandler:
 		Raise IOError if directory does not exist.
 
 		"""
-		dir_name = path.dirname(file)
+		dir_name = path.dirname(file_name)
 		if not dir_name:
 			dir_name = "."
 		if path.exists(dir_name):
 			self.file_dir = path.abspath(dir_name)
-			self.file_name = path.basename(file)
+			self.file_name = path.basename(file_name)
 			try:
-				self.file = open(file, mode)
+				self.file = open(file_name, mode)
 			except IOError:
 				splitted_file_name = self.file_name.rsplit('.', 1)
 				self.file_name = splitted_file_name[0] + '_new'
@@ -46,6 +49,17 @@ class FileHandler:
 			self.file.close()
 		self.file = open(self.file.name, mode)
 
+	def not_empty(self):
+		"""
+		Verify if file to import is not empty.
+		
+		"""
+		file_imported = self.file.read()
+		if file_imported != "":
+			return True
+		self.file.close()
+		return False
+		
 
 class FileHandlerTXT(FileHandler):
 	"""File Handler specific for operation on TXT files."""
@@ -66,17 +80,6 @@ class FileHandlerTXT(FileHandler):
 				self.file.write(line)
 			self.file.close()
 
-	def not_empty(self):
-		"""
-		Verify if file to import is not empty.
-		
-		"""
-		file_imported = self.file.read()
-		if file_imported != "":
-			return True
-		self.file.close()
-		return False
-		
 	def import_file(self):
 		"""
 		Creates Sudoku matrix with values imported from
@@ -105,14 +108,14 @@ class FileHandlerTXT(FileHandler):
 
 class FileHandlerXML(FileHandler):
 	"""File Handler specific for operation on XML files."""
-	def __init__(self, file, mode='r'):
+	def __init__(self, file_name, mode='r'):
 		"""Initializes a new XML File Handler.
 		
 		It first calls parent FileHandler initializator. Additionally
 		it creates a minidom parsed XML document instance: xmldoc.
 		
 		"""
-		FileHandler.__init__(self, file, mode)
+		FileHandler.__init__(self, file_name, mode)
 		if 'r' in self.file.mode:
 			self.xmldoc = minidom.parse(self.file)
 	

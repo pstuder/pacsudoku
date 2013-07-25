@@ -1,3 +1,6 @@
+
+"""Module for building and using the PAC Sudoku GUI."""
+
 import time
 import tkFileDialog
 import tkMessageBox
@@ -180,7 +183,7 @@ class SudokuGUIMemoryDialog(Toplevel):
 		self.memory_builder = SudokuGUIMemoryBuilder(self, sudoku_gui, mode)
 		self.gui = sudoku_gui
 		self.mode = mode
-		self._createWidgets()
+		self._create_widgets()
 	
 	def load_entry(self):
 		"""Loads currently selected memory slot and exits memory UI."""
@@ -221,6 +224,12 @@ class SudokuGUIMemoryDialog(Toplevel):
 		self.gui.reset_display()
 
 	def cancel_memory(self):
+		"""Exits the memory dialog.
+		
+		If in save mode, key event bind has been removed. This method
+		restores the key event bind again.
+		
+		"""
 		if self.mode == 0:
 			self.gui.sudoku_canvas.bind_all(
 				"<Key>",
@@ -228,7 +237,7 @@ class SudokuGUIMemoryDialog(Toplevel):
 			)
 		self.destroy()
 		
-	def _createWidgets(self):
+	def _create_widgets(self):
 		"""Calls the gui_builder methods to build the memory GUI"""
 		self.memory_builder.build_frames()
 
@@ -467,6 +476,7 @@ class GUISettingsDefaultAlgorithmBuilder(SudokuGUISettingsUtilities):
 
 
 class GUISettingsDifficultyLevelBuilder(SudokuGUISettingsUtilities):
+	"""Class containing methos to build confg.difficultyLevel settings."""
 	def __init__(self, sudoku_settings_gui, sudoku_gui):
 		"""Initializes a new sudoku gui settings difficulty level builder.
 		
@@ -564,7 +574,7 @@ class SudokuGUISettingsDialog(Toplevel):
 		Toplevel.__init__(self, sudoku_gui, **kwargs)
 		self.settings_builder = SudokuGUISettingsBuilder(self, sudoku_gui)
 		self.gui = sudoku_gui
-		self._createWidgets()
+		self._create_widgets()
 		
 	def save_and_exit(self):
 		"""Save settings to currently loaded .xml config file and exits."""
@@ -596,7 +606,7 @@ class SudokuGUISettingsDialog(Toplevel):
 			self.difficulty_level_string_var.get()
 		)
 
-	def _createWidgets(self):
+	def _create_widgets(self):
 		"""Calls the gui_builder methods to build the Settings GUI"""
 		self.settings_builder.build_main_frame()
 
@@ -680,22 +690,22 @@ class SudokuGUISolveActionSet(SudokuGUIUtilities):
 				"Please load or generate a Sudoku first."
 			)
 			return None
-		file = tkFileDialog.asksaveasfilename(
+		file_path = tkFileDialog.asksaveasfilename(
 			defaultextension=".TXT",
 			filetypes=[("TXT Files", "TXT")],
 			title="Export Solution"
 		)
-		if file == "":
+		if file_path == "":
 			return None
-		elif self.gui.export_sudoku_to_file(file):
+		elif self.gui.export_sudoku_to_file(file_path):
 			tkMessageBox.showinfo(
 				"Export Solution",
-				"SUccessfully exported solution to:\n %s" % file
+				"SUccessfully exported solution to:\n %s" % file_path
 			)
 		else:
 			tkMessageBox.showerror(
 				"Error Exporting Solution",
-				"Unable to export solution to:\n%s" % file +
+				"Unable to export solution to:\n%s" % file_path +
 				"\nEither the path does not exist or " +
 				"you do not have enough privileges."
 			)
@@ -785,12 +795,14 @@ class SudokuGUIPlayActionSet(SudokuGUIUtilities):
 			image=target_list_squares[digit]
 		)
 		if self.gui.interactive.sudoku_is_solved():
-			time = self.gui.interactive.game_time(self.gui.last_game_start)
+			game_time = self.gui.interactive.game_time(
+				self.gui.last_game_start
+			)
 			self.gui.reset_interactive()
 			tkMessageBox.showinfo(
 				"Sudoku Solved",
 				"Congratulations!\n\nYou have solved the Sudoku!\n" +
-				"Time: %s seconds." % int(time)
+				"Time: %s seconds." % int(game_time)
 			)
 	
 	def generate_action(self):
@@ -826,14 +838,14 @@ class SudokuGUIPlayActionSet(SudokuGUIUtilities):
 		
 		"""
 		extension = self.gui.config.inputType
-		file = tkFileDialog.askopenfilename(
+		file_path = tkFileDialog.askopenfilename(
 			defaultextension='.' + extension,
 			filetypes=[(extension + " Files", extension)],
 			title="Load Sudoku File"
 		)
-		if file == "":
+		if file_path == "":
 			return None
-		if self.gui.load_sudoku_from_file(file):
+		if self.gui.load_sudoku_from_file(file_path):
 			self.gui.build_squares_from_input_matrix()
 			self.gui.start_interactive_mode()
 		else:
@@ -983,7 +995,7 @@ class SudokuGUIBuilder(SudokuGUIUtilities):
 			self.gui.bottom_frame,
 			text="Quit",
 			width=24,
-			command=self.gui._quit_handler
+			command=self.gui.quit_handler
 		)
 		self.gui.quit_button.pack(side="right")
 		self.gui.solve_button = Button(
@@ -1248,18 +1260,18 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 		self.interactive = None
 		self.violation = False
 		self.currently_editing = None
-		self.timer = datetime(1900,1,1)
+		self.timer = datetime(1900, 1, 1)
 		self._timer_increment = timedelta(seconds=1)
 		Frame.__init__(self, master)
 		self.pack()
-		self._createWidgets()
+		self._create_widgets()
 	
 	def run(self):
 		"""Starts the graphical User Interface for the PAC Sudoku game."""
 		print "\n\nStarting the graphical user interface ..."
 		self.master.title("PAC Sudoku")
 		self.master.minsize(362, 462)
-		self.master.protocol("WM_DELETE_WINDOW", self._quit_handler)
+		self.master.protocol("WM_DELETE_WINDOW", self.quit_handler)
 		self.mainloop()
 		
 	def start_interactive_mode(self):
@@ -1295,7 +1307,7 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 		according to memory data.
 		
 		"""
-		previous_time, interactive_matrix, input_matrix, name =\
+		previous_time, interactive_matrix, input_matrix, name = \
 										self.interactive.load_game(memory_pos)
 		if not interactive_matrix:
 			return False
@@ -1392,6 +1404,7 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 			self.sudoku_canvas.unbind_all("<Key>")
 	
 	def reset_display(self):
+		"""Cleans the canvas and resets timer and input_matrix."""
 		self._reset_input_matrix()
 		self.sudoku_canvas.destroy()
 		self.sudoku_canvas = Canvas(
@@ -1405,10 +1418,10 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 		self.sudoku_canvas.create_line(242, 0, 242, 362, width=2)
 		self.sudoku_canvas.create_line(0, 122, 362, 122, width=2)
 		self.sudoku_canvas.create_line(0, 242, 362, 242, width=2)
-		self.timer = datetime(1900,1,1)
+		self.timer = datetime(1900, 1, 1)
 		self.time_label.configure(text=self.timer.strftime("%H:%M:%S"))
 
-	def _createWidgets(self):
+	def _create_widgets(self):
 		"""Calls the gui_builder methods to build the PAC Sudoku GUI"""
 		self.gui_builder.build_gui_frames()
 		self.gui_builder.build_top_frame_content()
@@ -1416,14 +1429,19 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 		self.gui_builder.build_bottom_frame_content()
 
 	def _reset_time(self):
-		"""Resets the sudoku timer."""
+		"""Resets the sudoku timer.
+		
+		Protected attribute _job may not exist at this point. Handle
+		this gracefully.
+		
+		"""
 		try:
 			self.after_cancel(self._job)
 			del(self._job)
-		except:
+		except AttributeError:
 			pass
 		del(self.timer)
-		self.timer = datetime(1900,1,1)
+		self.timer = datetime(1900, 1, 1)
 	
 	def _init_update_square(self, event):
 		"""Starts the process to update a clicked square in the sudoku canvas.
@@ -1488,7 +1506,7 @@ class SudokuGraphicalUserInterface(Interface, Frame):
 		self.current_square_x = (pionterx - rootx)//40
 		self.current_square_y = (piontery - rooty)//40
 	
-	def _quit_handler(self):
+	def quit_handler(self):
 		"""Handler for verifying if changes to config should be saved."""
 		selection = False
 		if self.config_changes_not_saved(self.config_file):

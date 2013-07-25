@@ -1,3 +1,6 @@
+
+"""Module for the algorithms to be used for solving a Sudoku."""
+
 from copy import deepcopy
 from itertools import product
 
@@ -29,11 +32,12 @@ class Algorithm:
 		"""Raises NotImplementedError, since this is an absract class."""
 		raise NotImplementedError("Can't solve if not a specific algorithm!")
 
-	def _cross(self, A, B):
-		"""Returns cross elements in A with each element in B"""
-		return [a + b for a in A for b in B]
+	def cross(self, first_elements, second_elements):
+		"""Returns cross of first_elements with each of second_elements"""
+		return [first + second for first in first_elements
+								for second in second_elements]
 	
-	def _some(self, sequence):
+	def some(self, sequence):
 		"""Return first element of seq that is true.
 
 		Useful for quick pick-ups and verifications for elements != '' or 0.
@@ -41,7 +45,8 @@ class Algorithm:
 
 		"""
 		for element in sequence:
-			if element: return element
+			if element:
+				return element
 		return False
 
 
@@ -59,8 +64,12 @@ class Norvig(Algorithm):
 
 		"""
 		Algorithm.__init__(self, matrixhandler)
-		self._construct_default_data_structures()
-		self._construct_units_and_peers()
+		self._units = {}
+		self._peers = {}
+		self._squares = []
+		self._values = {}
+		self.construct_data_structures()
+		self.construct_units_and_peers()
 
 	def solve(self):
 		"""Try to solve output_matrix sudoku using Peter Norvig algorithm.
@@ -76,7 +85,7 @@ class Norvig(Algorithm):
 			del(self.output_matrix)
 			return None
 	
-	def _construct_default_data_structures(self):
+	def construct_data_structures(self):
 		"""Constructs default data structures used by Norvig algorithm.
 		
 		Two data structures are used:
@@ -84,10 +93,10 @@ class Norvig(Algorithm):
 		_values -- {'A1': '123456789', ... 'I9': '123456789'}
 
 		"""
-		self._squares = self._cross(self._rows, self._columns)
+		self._squares = self.cross(self._rows, self._columns)
 		self._values = dict((s, self._columns) for s in self._squares)
 
-	def _construct_units_and_peers(self):
+	def construct_units_and_peers(self):
 		"""Constructs dictionaries containing each fields influence.
 		
 		Fields can be influenced by its row, column and quadrant it belongs.
@@ -97,10 +106,10 @@ class Norvig(Algorithm):
 
 		"""
 		unitlist = (
-			[self._cross(self._rows, c) for c in self._columns] +
-			[self._cross(r, self._columns) for r in self._rows] +
+			[self.cross(self._rows, c) for c in self._columns] +
+			[self.cross(r, self._columns) for r in self._rows] +
 			[
-				self._cross(rs, cs)
+				self.cross(rs, cs)
 					for rs in ('ABC','DEF','GHI')
 						for cs in ('123','456','789')
 			]
@@ -225,12 +234,12 @@ class Norvig(Algorithm):
 											if len(values[field]) > 1
 		)
 		
-		return self._some(
+		return self.some(
 			self._search(
 				self._assign(values.copy(), field, digit)
 			) for digit in values[field]
 		)
-		
+
 
 class XAlgorithm(Algorithm):
 	

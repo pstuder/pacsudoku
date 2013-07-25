@@ -1,3 +1,6 @@
+
+"""Module for calling PAC Sudoku since command line."""
+
 import textwrap
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from os import path
@@ -8,6 +11,7 @@ from sudokuconsole import SudokuConsoleUserInterface
 from sudokugui import SudokuGraphicalUserInterface
 
 def main():
+	"""Launches the PAC Sudoku game using argv for the arguments."""
 	parser = SudokuArgumentParser()
 	args = parser.parse_args()
 	config_file_name = args.config
@@ -86,6 +90,6 @@ class SudokuArgumentParser(ArgumentParser):
 
 
 if __name__ == "__main__":
-	pacsudoku = main()
-	pacsudoku.run()
+	PACSUDOKU = main()
+	PACSUDOKU.run()
 

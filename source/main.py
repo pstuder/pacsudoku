@@ -1,3 +1,6 @@
+
+"""Module for the interface controller."""
+
 import config
 import inout
 import validmatrix
@@ -122,7 +125,7 @@ class Interface():
 			self.config.difficultyLevel != file_config.difficultyLevel
 		)
 	
-	def load_sudoku_from_file(self, file):
+	def load_sudoku_from_file(self, file_name):
 		"""Returns True if file saved to input_matrix as a valid Sudoku game.
 		
 		Raises TypeError if config, by any reason, is set with an unexpected
@@ -131,9 +134,9 @@ class Interface():
 		"""
 		self._reset_input_matrix()
 		if self.config.inputType == 'CSV':
-			file_handler = inout.FileHandlerCSV(file)
+			file_handler = inout.FileHandlerCSV(file_name)
 		elif self.config.inputType == 'TXT':
-			file_handler = inout.FileHandlerTXT(file)
+			file_handler = inout.FileHandlerTXT(file_name)
 		else:
 			raise TypeError("Unexpected Type: %s" % self.config.inputType)
 		
@@ -141,12 +144,12 @@ class Interface():
 		self.input_matrix = validmatrix.MatrixHandler(matrix)
 		return self.input_matrix.validate()
 	
-	def export_sudoku_to_file(self, file):
+	def export_sudoku_to_file(self, file_name):
 		"""Returns True if output_matrix successfully exported to file."""
 		if self.output_matrix is None:
 			return False
 		try:
-			file_handler = inout.FileHandlerTXT(file, 'w')
+			file_handler = inout.FileHandlerTXT(file_name, 'w')
 			file_handler.export_file(self.output_matrix.first_matrix)
 			return True
 		except IOError:
@@ -188,10 +191,11 @@ class Interface():
 			while True:
 				self.input_matrix.generator(self.config.difficultyLevel)
 				self._set_algorithm()
-				if self.algorithm.solve() is not None: break
+				if self.algorithm.solve() is not None:
+					break
 			self.config.defaultAlgorithm = temp_default_algorithm
 			self._set_algorithm()
-		except:
+		except TypeError:
 			return False
 		return True
 

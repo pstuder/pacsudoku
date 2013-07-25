@@ -32,43 +32,43 @@ class Configfile():
                                 the  default value is Low.
         """
         if self.validateInputType(inputType, self.supported_inputTypes)==True:
-            self.inputType=inputType
+            self.inputType = inputType
         else:
-            self.inputType="TXT"
+            self.inputType = "TXT"
         
         if self.validateInputType(outputType, self.supported_outputTypes)==True:
-            self.outputType=outputType
+            self.outputType = outputType
         else:
-            self.outputType="Console"
+            self.outputType = "Console"
             
         if self.validateInputType(defaultAlgorithm,
                                   self.supported_defaultAlgorithms)==True:    
-            self.defaultAlgorithm=defaultAlgorithm
+            self.defaultAlgorithm = defaultAlgorithm
         else:
-            self.defaultAlgorithm="Backtracking"
+            self.defaultAlgorithm = "Backtracking"
             
         if self.validateInputType(difficultyLevel,
                                   self.supported_difficultyLevels)==True:
-            self.difficultyLevel=difficultyLevel
+            self.difficultyLevel = difficultyLevel
         else:
-            self.difficultyLevel="Low"
+            self.difficultyLevel = "Low"
 
         
-    def validateInputType(self,inputtype, formats):
+    def validateInputType(self, inputtype, formats):
         """
-        Validate each input of a Configfile class
+        Validate each input of position Configfile class
         
         The defined parameters means:
         input_type -- Define the parameter input type
         format_list -- List of possible values for each type.
         """
-        status=False
-        for a in range(len(formats)):
-            if inputtype==formats[a]:
-                status=True
+        status = False
+        for position in range(len(formats)):
+            if inputtype == formats[position]:
+                status = True
                 break 
             else:
-                status=False
+                status = False
         return status
 
 

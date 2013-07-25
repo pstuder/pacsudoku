@@ -242,6 +242,7 @@ class Norvig(Algorithm):
 
 
 class XAlgorithm(Algorithm):
+	"""XAlgorithm is a solution with the Exact cover solution. """
 	
 	def solve_sudoku(self, size):
 		""" Solve a sudoku of an specific size.
@@ -292,30 +293,30 @@ class XAlgorithm(Algorithm):
 		
 	def costruct_x(self, matrix_lenght):
 		""" Return the initial list of tuples of X list. """
-		a=self.first_list("rc", matrix_lenght, 0, matrix_lenght)
-		b=self.first_list("rn", matrix_lenght, 1, matrix_lenght+1)
-		c=self.first_list("cn", matrix_lenght, 1, matrix_lenght+1)
-		d=self.first_list("bn", matrix_lenght, 1, matrix_lenght+1)
-		return a+b+c+d
+		row_column = self.first_list("rc", matrix_lenght, 0, matrix_lenght)
+		row_number = self.first_list("rn", matrix_lenght, 1, matrix_lenght+1)
+		column_number = self.first_list("cn", matrix_lenght, 1, matrix_lenght+1)
+		block_number = self.first_list("bn", matrix_lenght, 1, matrix_lenght+1)
+		return row_column+row_number+column_number+block_number
 				
 				
-	def first_list(self, text,matrix_lenght1, start, matrix_lenght2):
+	def first_list(self, text, matrix_lenght1, start, matrix_lenght2):
 		""" Return the initial list of values. """
-		list = []
+		initial_list = []
 		for row_column in product(
 								 range(matrix_lenght1), 
 								 range(start, matrix_lenght2)):
-			list.append((text, row_column))
-		return list
+			initial_list.append((text, row_column))
+		return initial_list
 		
-	def costruct_y(self, matrix_lenght, Row, Column, list_y):
+	def costruct_y(self, matrix_lenght, input_row, input_column, list_y):
 		""" Return the initial list of tuples of Y list.	"""
 
 		for row, column, lenght in product(
 									range(matrix_lenght), 
 									range(matrix_lenght), 
 									range(1, matrix_lenght + 1)):
-			box_number = (row // Row) * Row + (column // Column) 
+			box_number = (row // input_row) * input_row + (column // input_column) 
 			list_y[(row, column, lenght)] =[
 					 						("rc", (row, column)),
 			  						   		("rn", (row, lenght)), 
@@ -328,15 +329,15 @@ class XAlgorithm(Algorithm):
 		""" Execute the solve_sudoku method with a size of 3X3 
 		and returns a MatrixHandler type with the solution. 
 		"""
-		return_MatrixHandler = self.solve_sudoku((3, 3))
-		if return_MatrixHandler != None and return_MatrixHandler != []:
-			return MatrixHandler(return_MatrixHandler)
+		return_matrix_handler = self.solve_sudoku((3, 3))
+		if return_matrix_handler != None and return_matrix_handler != []:
+			return MatrixHandler(return_matrix_handler)
 		else:
 			del(self.output_matrix)
 			return None
 
 				
-	def exact_cover(self,list_x, list_y):
+	def exact_cover(self, list_x, list_y):
 		"""	Returns the exact cover list needed to work. """
 		list_x = {location: set() for location in list_x}
 		for i, row in list_y.items():
@@ -355,8 +356,8 @@ class XAlgorithm(Algorithm):
 			for row_position in list(list_x[column_position]):
 				solution.append(row_position)
 				cols = self.select(list_x, list_y, row_position)
-				for s in self.solve_list(list_x, list_y, solution):
-					yield s
+				for solved in self.solve_list(list_x, list_y, solution):
+					yield solved
 				self.unselect(list_x, list_y, row_position, cols)
 				solution.pop()
 			

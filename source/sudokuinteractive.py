@@ -1,6 +1,7 @@
-from datetime import timedelta
+"""sudokuinteractive module 
+contains SudokuInteractive class with interactive methods. 
+"""
 from copy import deepcopy
-import os
 import random
 import time
 import ast
@@ -9,7 +10,9 @@ from validmatrix import MatrixHandler
 from solver import Norvig
 
 class SudokuInteractive():
-    
+    """SudokuInteractive class.
+    Define methods to play a interactive sudoku game.
+    """
     def __init__(self, matrix):
         """Initializes a new algorithm instance.
         - matrix receive a MatrixHandler instance of a input matrix  
@@ -48,7 +51,7 @@ class SudokuInteractive():
         for i in range(len(self.matrix.first_matrix)):
             for j in range(len(self.matrix.first_matrix)):
                 if self.matrix.first_matrix[i][j] != mat2[i][j]:
-                    is_equal=False
+                    is_equal = False
         return is_equal
                     
     def change_value_in_cell(self, row, column, value):
@@ -71,17 +74,18 @@ class SudokuInteractive():
             for j in range(len(self.matrix.first_matrix)):
                 if self.matrix.first_matrix[i][j] == 0:
                     input_list.append((i, j))
-        rand=random.randint(0, len(input_list)-1)
-        x, y = input_list[rand]
-        self.matrix.first_matrix[x][y] = self.solved.first_matrix[x][y]
-        return x, y
+        rand = random.randint(0, len(input_list)-1)
+        randomic_x, randomic_y = input_list[rand]
+        self.matrix.first_matrix[randomic_x][randomic_y] = \
+                        self.solved.first_matrix[randomic_x][randomic_y]
+        return randomic_x, randomic_y
         
     def duplicate_values(self):
         """ Return the duplicate values in rows and columns. """
-        return_list=""
-        return_list=self.duplicate_value_in_row()+\
-                    self.duplicate_value_in_column()
-        return_list=return_list + self.duplicate_value_in_sub_square()
+        return_list = ""
+        return_list = self.duplicate_value_in_row()+\
+                      self.duplicate_value_in_column()
+        return_list = return_list + self.duplicate_value_in_sub_square()
         return return_list 
             
              
@@ -93,15 +97,15 @@ class SudokuInteractive():
                 dup_list = dup_list + "Row "+ str(i) + "\n"
         return dup_list 
                   
-    def duplicate_list_row(self,row):
+    def duplicate_list_row(self, row):
         """ Return the duplicate values in one row. """
         return_list = ""
         for i in range(len(self.matrix.first_matrix)):
             for j in range(i+1, len(self.matrix.first_matrix)):
-                if self.matrix.first_matrix[row][i]==\
+                if self.matrix.first_matrix[row][i] == \
                          self.matrix.first_matrix[row][j] \
-                         and i!=j \
-                         and self.matrix.first_matrix[row][i]!=0:
+                         and i != j \
+                         and self.matrix.first_matrix[row][i] != 0:
                     return_list = return_list + \
                                   str(self.matrix.first_matrix[row][i])
         return return_list
@@ -121,7 +125,7 @@ class SudokuInteractive():
         return_list = ""
         for i in range(len(self.matrix.first_matrix)):
             for j in range(i+1, len(self.matrix.first_matrix)):
-                if self.matrix.first_matrix[i][column] ==\
+                if self.matrix.first_matrix[i][column] == \
                         self.matrix.first_matrix[j][column]\
                         and self.matrix.first_matrix[i][column] != 0:
                     return_list = return_list + \
@@ -132,60 +136,62 @@ class SudokuInteractive():
         """ Return the duplicate values in sub squares. """
         dup_list = ""
         dup_list = dup_list + \
-                   self.duplicate_value_in_one_sub_square(0, 2, 0, 2) 
+                   self.duplicate_in_one_subsquare(0, 2, 0, 2) 
         dup_list = dup_list + \
-                   self.duplicate_value_in_one_sub_square(0, 2, 3, 5) 
+                   self.duplicate_in_one_subsquare(0, 2, 3, 5) 
         dup_list = dup_list + \
-                   self.duplicate_value_in_one_sub_square(0, 2, 6, 8) 
+                   self.duplicate_in_one_subsquare(0, 2, 6, 8) 
         dup_list = dup_list + \
-                   self.duplicate_value_in_one_sub_square(3, 5, 0, 2) 
+                   self.duplicate_in_one_subsquare(3, 5, 0, 2) 
         dup_list = dup_list + \
-                   self.duplicate_value_in_one_sub_square(3, 5, 3, 5) 
+                   self.duplicate_in_one_subsquare(3, 5, 3, 5) 
         dup_list = dup_list + \
-                   self.duplicate_value_in_one_sub_square(3, 5, 6, 8)
+                   self.duplicate_in_one_subsquare(3, 5, 6, 8)
         dup_list = dup_list + \
-                   self.duplicate_value_in_one_sub_square(6, 8, 0, 2) 
+                   self.duplicate_in_one_subsquare(6, 8, 0, 2) 
         dup_list = dup_list + \
-                   self.duplicate_value_in_one_sub_square(6, 8, 3, 5)
+                   self.duplicate_in_one_subsquare(6, 8, 3, 5)
         dup_list = dup_list + \
-                   self.duplicate_value_in_one_sub_square(6, 8, 6, 8)
+                   self.duplicate_in_one_subsquare(6, 8, 6, 8)
         return dup_list
         
-    def duplicate_value_in_one_sub_square(self, x1, x2, y1, y2):
+    def duplicate_in_one_subsquare(self, x_one, x_two, y_one, y_two):
         """ Return the duplicate values in one sub square. """
         dup_list = ""
         available_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-        for i in range(x1, x2+1):
-            for j in range(y1, y2+1):
+        for i in range(x_one, x_two+1):
+            for j in range(y_one, y_two+1):
                 value = self.matrix.first_matrix[i][j]
                 if value != 0: 
                     if value in available_values:
                         available_values.remove(value) 
                     else:
-                        dup_list = "Quadrant "+ str(self.get_quadrant(i, j)) + "\n"
+                        dup_list = "Quadrant "+ str(self.get_quadrant(i, j))\
+                                    + "\n"
         return dup_list 
        
     
     def get_quadrant(self, row, column):
         """Return a sub square where a row and column point in a matrix. """
         if row <= 2 and column <= 2:
-            return 1
+            quadrant = 1
         elif row <= 5 and column <= 2:
-            return 4
+            quadrant = 4
         elif row <= 8 and column <= 2:
-            return 7
+            quadrant = 7
         elif row <= 2 and column <= 5:
-            return 2
+            quadrant = 2
         elif row <= 5 and column <= 5:
-            return 5
+            quadrant = 5
         elif row <= 8 and column <= 5:
-            return 8
+            quadrant = 8
         elif row <= 2 and column <= 8:
-            return 3
+            quadrant = 3
         elif row <= 5 and column <= 8:
-            return 6
+            quadrant = 6
         elif row <= 8 and column <= 8:
-            return 9
+            quadrant = 9
+        return quadrant
     
         
     def game_start(self):
@@ -206,7 +212,7 @@ class SudokuInteractive():
         """Save interactive game in specific memory position 
         also allows to the user to set a name to the game.  
         """
-        self.memory=self.recover_values_from_file()
+        self.memory = self.recover_values_from_file()
         memory = self.recover_values_from_file()
         matrix_for_save = self.matrix.first_matrix
         input_file_name = "../savegame/savegame.sv"
@@ -214,7 +220,6 @@ class SudokuInteractive():
         actual_time = time.clock()-game_start_time
         for i in range(1, 6):
             if memory_position == i:
-                actual_matrix = ''
                 memory[i] = (
                              actual_time, matrix_for_save, \
                              self.copy, game_name
@@ -229,8 +234,8 @@ class SudokuInteractive():
         file_imported = input_file.readlines()
         input_file.close()
         if file_imported != []:
-            self.memory1 = file_imported[0]
-            dictionary = ast.literal_eval(self.memory1)
+            memory1 = file_imported[0]
+            dictionary = ast.literal_eval(memory1)
             for i in range(1, 6):
                 self.memory[i] = dictionary[i]
         return self.memory
@@ -241,5 +246,5 @@ class SudokuInteractive():
         actual_time, matrix, \
             first_matrix, game_name = self.memory[memory_position]
         del(self.matrix) 
-        self.matrix=MatrixHandler(matrix)
+        self.matrix = MatrixHandler(matrix)
         return float(actual_time), matrix, first_matrix, game_name

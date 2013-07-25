@@ -5,7 +5,6 @@ import csv
 from os import path
 from xml.dom import minidom
 
-from validmatrix import MatrixHandler
 from config import Configfile
 
 
@@ -189,15 +188,15 @@ class FileHandlerCSV(FileHandler):
 	"""File Handler specific for operation on CSV files."""
 	def import_file(self):
 		""" Create Sudoku matrix with values imported from CSV file. """
-		return_matrix=[]
-		auxiliar_matrix=[]
-		with self.file as f:
-			reader = csv.reader(f)
-			if reader!="":
+		return_matrix = []
+		auxiliar_matrix = []
+		with self.file as input_file:
+			reader = csv.reader(input_file)
+			if reader != "":
 				for row in reader:
 					for column in range(len(row)):
 						auxiliar_matrix.append(int(row[column]))
 					return_matrix.append(auxiliar_matrix)
-					auxiliar_matrix=[]
+					auxiliar_matrix = []
 		return return_matrix
 	

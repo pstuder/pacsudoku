@@ -253,14 +253,14 @@ class XAlgorithm(Algorithm):
 		- select_proper_value.
 		- return_exit_mat.
 		"""
-		Row, Column = size
-		matrix_lenght = Row * Column
-		list_of_X = self.costruct_x(matrix_lenght)
-		list_of_Y = dict()
-		list_of_Y = self.costruct_y(matrix_lenght, Row, Column, list_of_Y)
-		list_of_X, list_of_Y = self.exact_cover(list_of_X, list_of_Y)
-		self.select_proper_value(list_of_X, list_of_Y)
-		exit_mat = self.return_exit_mat(list_of_X, list_of_Y)
+		input_row, input_column = size
+		matrix_lenght = input_row * input_column
+		list_of_x = self.costruct_x(matrix_lenght)
+		list_of_y = dict()
+		list_of_y = self.costruct_y(matrix_lenght, input_row, input_column, list_of_y)
+		list_of_x, list_of_y = self.exact_cover(list_of_x, list_of_y)
+		self.select_proper_value(list_of_x, list_of_y)
+		exit_mat = self.return_exit_mat(list_of_x, list_of_y)
 		if exit_mat == []:
 			return None
 		else:

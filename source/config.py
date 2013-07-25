@@ -1,11 +1,15 @@
+"""config module."""
 class Configfile():
+    """Config file class.
+    Define the config file structure
+    """
     supported_inputTypes = ["TXT", "CSV"]
     supported_outputTypes = ["Console", "File"]
     supported_defaultAlgorithms = [
                                 "Backtracking", 
                                 "Norvig", "XAlgorithm"
                                 ]
-    supported_difficultyLevels = ["High","Medium", "Low"]
+    supported_difficultyLevels = ["High", "Medium", "Low"]
 
     def __init__(
                  self,inputType="TXT",outputType="Console",
@@ -27,12 +31,12 @@ class Configfile():
                                 If it is not defined, 
                                 the  default value is Low.
         """
-        if self.validateInputType(inputType,self.supported_inputTypes)==True:
+        if self.validateInputType(inputType, self.supported_inputTypes)==True:
             self.inputType=inputType
         else:
-            self.inputType= "TXT"
+            self.inputType="TXT"
         
-        if self.validateInputType(outputType,self.supported_outputTypes)==True:
+        if self.validateInputType(outputType, self.supported_outputTypes)==True:
             self.outputType=outputType
         else:
             self.outputType="Console"
